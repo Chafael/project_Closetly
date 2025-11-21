@@ -1,4 +1,4 @@
-package com.activity.closetly.project_closetly.ui.login.components
+package com.activity.closetly.project_closedly.ui.login.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,7 +28,11 @@ fun TextFieldWithLabel(
     onPasswordToggle: () -> Unit = {}
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = label, fontWeight = FontWeight.Medium, color = Color.DarkGray)
+        Text(
+            text = label,
+            fontWeight = FontWeight.Medium,
+            color = Color.DarkGray
+        )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = value,
@@ -38,17 +42,34 @@ fun TextFieldWithLabel(
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFFB59A7A),
-                unfocusedBorderColor = Color.LightGray
+                unfocusedBorderColor = Color.LightGray,
+                cursorColor = Color(0xFFB59A7A)
             ),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-            visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+            visualTransformation = if (isPassword && !passwordVisible) {
+                PasswordVisualTransformation()
+            } else {
+                VisualTransformation.None
+            },
             trailingIcon = {
                 if (isPassword) {
-                    val icon = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                    val description = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                    val icon = if (passwordVisible) {
+                        Icons.Filled.Visibility
+                    } else {
+                        Icons.Filled.VisibilityOff
+                    }
+                    val description = if (passwordVisible) {
+                        "Ocultar contraseña"
+                    } else {
+                        "Mostrar contraseña"
+                    }
                     IconButton(onClick = onPasswordToggle) {
-                        Icon(imageVector = icon, contentDescription = description, tint = Color.Gray)
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = description,
+                            tint = Color.Gray
+                        )
                     }
                 }
             }
