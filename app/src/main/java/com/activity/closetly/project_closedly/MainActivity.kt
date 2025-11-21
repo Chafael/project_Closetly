@@ -1,4 +1,4 @@
-package com.activity.closetly.project_closetly
+package com.activity.closetly.project_closedly // -> CORREGIDO
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,8 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.activity.closetly.project_closetly.ui.login.LoginScreen
-import com.activity.closetly.project_closetly.ui.theme.Project_ClosetlyTheme
+// Importaciones corregidas para apuntar al paquete 'project_closedly'
+import com.activity.closetly.project_closedly.ui.login.LoginScreen // -> CORREGIDO
+import com.activity.closetly.project_closedly.ui.theme.Project_ClosetlyTheme // -> CORREGIDO
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

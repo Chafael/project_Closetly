@@ -1,4 +1,4 @@
-package com.activity.closetly.project_closetly.ui.login
+package com.activity.closetly.project_closedly.ui.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,10 +17,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.activity.closetly.project_closetly.ui.login.components.HeaderImage
-import com.activity.closetly.project_closetly.ui.login.components.TextFieldWithLabel
-import com.activity.closetly.project_closetly.ui.theme.Project_ClosetlyTheme
-import com.activity.closetly.project_closetly.viewmodel.LoginViewModel
+import com.activity.closetly.project_closedly.ui.login.components.HeaderImage
+import com.activity.closetly.project_closedly.ui.login.components.TextFieldWithLabel
+import com.activity.closetly.project_closedly.ui.theme.Project_ClosetlyTheme
+import com.activity.closetly.project_closedly.ui.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
@@ -85,7 +85,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                     "Regístrate aquí",
                     color = Color(0xFFB59A7A),
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.clickable { /* TODO: Navegar a la pantalla de registro */ }
+                    modifier = Modifier.clickable { /* TODO: Navegar a registro */ }
                 )
             }
         }
