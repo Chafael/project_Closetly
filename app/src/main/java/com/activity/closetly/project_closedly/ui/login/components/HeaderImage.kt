@@ -1,4 +1,4 @@
-package com.activity.closetly.project_closetly.ui.login.components
+package com.activity.closetly.project_closedly.ui.login.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,7 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.activity.closetly.project_closetly.R
+import com.activity.closetly.project_closedly.R
 
 @Composable
 fun HeaderImage() {
@@ -32,11 +32,13 @@ fun HeaderImage() {
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
+        // Overlay oscuro
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.3f))
         )
+        // Texto centrado
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "Closetly",
