@@ -25,7 +25,8 @@ fun TextFieldWithLabel(
     keyboardType: KeyboardType,
     isPassword: Boolean = false,
     passwordVisible: Boolean = false,
-    onPasswordToggle: () -> Unit = {}
+    onPasswordToggle: () -> Unit = {},
+    enabled: Boolean = true
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -43,9 +44,12 @@ fun TextFieldWithLabel(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFFB59A7A),
                 unfocusedBorderColor = Color.LightGray,
-                cursorColor = Color(0xFFB59A7A)
+                cursorColor = Color(0xFFB59A7A),
+                disabledBorderColor = Color.LightGray.copy(alpha = 0.5f),
+                disabledTextColor = Color.Gray
             ),
             singleLine = true,
+            enabled = enabled,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             visualTransformation = if (isPassword && !passwordVisible) {
                 PasswordVisualTransformation()
@@ -64,11 +68,11 @@ fun TextFieldWithLabel(
                     } else {
                         "Mostrar contraseña"
                     }
-                    IconButton(onClick = onPasswordToggle) {
+                    IconButton(onClick = onPasswordToggle, enabled = enabled) {
                         Icon(
                             imageVector = icon,
                             contentDescription = description,
-                            tint = Color.Gray
+                            tint = if (enabled) Color.Gray else Color.Gray.copy(alpha = 0.5f)
                         )
                     }
                 }
