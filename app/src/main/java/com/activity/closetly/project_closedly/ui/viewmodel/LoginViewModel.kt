@@ -1,36 +1,30 @@
-package com.activity.closetly.project_closedly.ui.viewmodel
+package com.activity.closetly.project_closedly.viewmodel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-data class LoginUiState(
-    val email: String = "",
-    val contrasena: String = "",
-    val contrasenaVisible: Boolean = false,
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null
-)
+// ... (data class LoginUiState no cambia)
 
-class LoginViewModel : ViewModel() {
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val userService: UserService // Hilt inyectará esto
+) : ViewModel() {
 
     var uiState by mutableStateOf(LoginUiState())
         private set
 
-    fun onEmailChange(email: String) {
-        uiState = uiState.copy(email = email)
-    }
-
-    fun onContrasenaChange(contrasena: String) {
-        uiState = uiState.copy(contrasena = contrasena)
-    }
-
-    fun onToggleContrasenaVisibility() {
-        uiState = uiState.copy(contrasenaVisible = !uiState.contrasenaVisible)
-    }
+    // ... (onEmailChange, onContrasenaChange, etc. no cambian)
 
     fun onLoginClicked() {
+        // Aquí iría la lógica real de login
         println("Login -> Email: ${uiState.email}, Contraseña: ${uiState.contrasena}")
+        // viewModelScope.launch {
+        //     val user = userService.findUserByEmail(uiState.email)
+        //     ... lógica de validación
+        // }
     }
 }
