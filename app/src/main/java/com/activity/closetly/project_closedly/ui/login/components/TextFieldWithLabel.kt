@@ -33,10 +33,9 @@ fun TextFieldWithLabel(
         Text(
             text = label,
             fontWeight = FontWeight.Medium,
-            color = if (isError) MaterialTheme.colorScheme.error else Color.DarkGray
+            color = if (isError) Color(0xFFD32F2F) else Color(0xFF424242)
         )
         Spacer(modifier = Modifier.height(8.dp))
-
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
@@ -44,19 +43,24 @@ fun TextFieldWithLabel(
             placeholder = { Text(placeholder, color = Color.LightGray) },
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = if (isError) MaterialTheme.colorScheme.error else Color.LightGray,
-                focusedBorderColor = if (isError) MaterialTheme.colorScheme.error else Color(0xFFB59A7A),
+                unfocusedBorderColor = if (isError) Color(0xFFD32F2F) else Color.LightGray,
+                focusedBorderColor = if (isError) Color(0xFFD32F2F) else Color(0xFFB59A7A),
 
-                cursorColor = Color(0xFFB59A7A),
+                cursorColor = if (isError) Color(0xFFD32F2F) else Color(0xFFB59A7A),
 
                 disabledBorderColor = Color.LightGray.copy(alpha = 0.5f),
                 disabledTextColor = Color.Gray,
 
-                focusedTextColor = Color.DarkGray,
-                unfocusedTextColor = Color.DarkGray,
+                focusedTextColor = Color(0xFF212121),
+                unfocusedTextColor = Color(0xFF424242),
 
-                errorBorderColor = MaterialTheme.colorScheme.error,
-                errorCursorColor = MaterialTheme.colorScheme.error
+                errorBorderColor = Color(0xFFD32F2F),
+                errorCursorColor = Color(0xFFD32F2F),
+                errorLabelColor = Color(0xFFD32F2F),
+
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                errorContainerColor = Color.White
             ),
             singleLine = true,
             enabled = enabled,
