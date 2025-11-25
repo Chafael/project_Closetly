@@ -51,17 +51,20 @@ fun LoginScreen(
         ) {
             Spacer(modifier = Modifier.height(40.dp))
 
+            // Campo de Email
             TextFieldWithLabel(
                 label = "Email",
                 value = uiState.email,
                 onValueChange = loginViewModel::onEmailChange,
                 placeholder = "example@email.com",
                 keyboardType = KeyboardType.Email,
-                enabled = !uiState.isLoading
+                enabled = !uiState.isLoading,
+                isError = uiState.errorMessage != null
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Campo de Contraseña
             TextFieldWithLabel(
                 label = "Contraseña",
                 value = uiState.contrasena,
@@ -71,10 +74,11 @@ fun LoginScreen(
                 isPassword = true,
                 passwordVisible = uiState.contrasenaVisible,
                 onPasswordToggle = loginViewModel::onToggleContrasenaVisibility,
-                enabled = !uiState.isLoading
+                enabled = !uiState.isLoading,
+                isError = uiState.errorMessage != null
             )
 
-            // Mostrar error si existe
+            // mensaje de error
             uiState.errorMessage?.let { error ->
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -86,6 +90,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Botón de login
             Button(
                 onClick = loginViewModel::onLoginClicked,
                 modifier = Modifier
@@ -110,6 +115,7 @@ fun LoginScreen(
             Text("o", color = Color.Gray)
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Enlace a registro
             Row {
                 Text("¿No tienes cuenta? ", color = Color.Gray)
                 Text(
@@ -129,5 +135,6 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     Project_ClosetlyTheme {
+        LoginScreen()
     }
 }
