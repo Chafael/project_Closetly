@@ -26,15 +26,17 @@ fun TextFieldWithLabel(
     isPassword: Boolean = false,
     passwordVisible: Boolean = false,
     onPasswordToggle: () -> Unit = {},
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    isError: Boolean = false
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = label,
             fontWeight = FontWeight.Medium,
-            color = Color.DarkGray
+            color = if (isError) MaterialTheme.colorScheme.error else Color.DarkGray
         )
         Spacer(modifier = Modifier.height(8.dp))
+
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
@@ -42,14 +44,23 @@ fun TextFieldWithLabel(
             placeholder = { Text(placeholder, color = Color.LightGray) },
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFFB59A7A),
-                unfocusedBorderColor = Color.LightGray,
+                unfocusedBorderColor = if (isError) MaterialTheme.colorScheme.error else Color.LightGray,
+                focusedBorderColor = if (isError) MaterialTheme.colorScheme.error else Color(0xFFB59A7A),
+
                 cursorColor = Color(0xFFB59A7A),
+
                 disabledBorderColor = Color.LightGray.copy(alpha = 0.5f),
-                disabledTextColor = Color.Gray
+                disabledTextColor = Color.Gray,
+
+                focusedTextColor = Color.DarkGray,
+                unfocusedTextColor = Color.DarkGray,
+
+                errorBorderColor = MaterialTheme.colorScheme.error,
+                errorCursorColor = MaterialTheme.colorScheme.error
             ),
             singleLine = true,
             enabled = enabled,
+            isError = isError,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             visualTransformation = if (isPassword && !passwordVisible) {
                 PasswordVisualTransformation()
