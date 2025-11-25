@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1013551379506",
+    "project_id": "closetly-bca59",
+    "storage_bucket": "closetly-bca59.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1013551379506:android:00e9bcc6f9762e8324f82b",
+        "android_client_info": {
+          "package_name": "com.activity.closetly.project_closedly"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDn1kYVRiUXxOxR0UEe8PjFcZcKWx9ooV0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
