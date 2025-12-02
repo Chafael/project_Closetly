@@ -14,14 +14,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val authRepository: AuthRepository //
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
-    // Usamos el estado que ya definieron en model/RegisterState.kt
     var uiState by mutableStateOf(RegisterState())
         private set
-
-    // --- Funciones para actualizar cada campo ---
 
     fun onUsernameChange(newValue: String) {
         uiState = uiState.copy(username = newValue, errorMessage = null)
@@ -51,10 +48,7 @@ class RegisterViewModel @Inject constructor(
         uiState = uiState.copy(isConfirmPasswordVisible = !uiState.isConfirmPasswordVisible)
     }
 
-    // --- Lógica del botón de registro ---
-
     fun onRegisterClicked() {
-        // 1. Validaciones
         if (uiState.username.isBlank() || uiState.email.isBlank() || uiState.password.isBlank()) {
             uiState = uiState.copy(errorMessage = "Todos los campos son obligatorios")
             return
@@ -80,7 +74,6 @@ class RegisterViewModel @Inject constructor(
             return
         }
 
-        // 2. Llamada al repositorio
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true, errorMessage = null)
 
@@ -103,9 +96,7 @@ class RegisterViewModel @Inject constructor(
                         errorMessage = result.message
                     )
                 }
-                is AuthResult.Loading -> {
-                    // Ya manejado con isLoading = true
-                }
+                is AuthResult.Loading -> {}
             }
         }
     }

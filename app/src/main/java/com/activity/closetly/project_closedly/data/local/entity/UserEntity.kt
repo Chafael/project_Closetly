@@ -1,4 +1,14 @@
 package com.activity.closetly.project_closedly.data.local.entity
 
-class UserEntity {
-}
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "users")
+data class UserEntity(
+    @PrimaryKey
+    val id: String,
+    val email: String,
+    val username: String,
+    val createdAt: Long = System.currentTimeMillis(),
+    val lastLoginAt: Long = System.currentTimeMillis()
+)

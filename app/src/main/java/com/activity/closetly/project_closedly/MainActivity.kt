@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
             Project_ClosetlyTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name = "Register Branch",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -42,6 +42,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     Project_ClosetlyTheme {
-        Greeting("Android")
+        Greeting("Register Branch")
     }
 }
