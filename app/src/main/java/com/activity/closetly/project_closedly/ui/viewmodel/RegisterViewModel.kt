@@ -49,18 +49,24 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onRegisterClicked() {
-        if (uiState.username.isBlank() || uiState.email.isBlank() || uiState.password.isBlank()) {
-            uiState = uiState.copy(errorMessage = "Todos los campos son obligatorios")
+        // Validaciones básicas
+        if (uiState.username.isBlank()) {
+            uiState = uiState.copy(errorMessage = "El nombre de usuario es obligatorio")
+            return
+        }
+
+        if (uiState.email.isBlank()) {
+            uiState = uiState.copy(errorMessage = "El email es obligatorio")
+            return
+        }
+
+        if (uiState.password.isBlank()) {
+            uiState = uiState.copy(errorMessage = "La contraseña es obligatoria")
             return
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(uiState.email).matches()) {
             uiState = uiState.copy(errorMessage = "Formato de email inválido")
-            return
-        }
-
-        if (uiState.password != uiState.confirmPassword) {
-            uiState = uiState.copy(errorMessage = "Las contraseñas no coinciden")
             return
         }
 
