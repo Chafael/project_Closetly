@@ -10,12 +10,14 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
+
 private const val TAG = "FirebaseAuthService"
 sealed class AuthResult<out T> {
     data class Success<T>(val data: T) : AuthResult<T>()
     data class Error(val message: String) : AuthResult<Nothing>()
     data object Loading : AuthResult<Nothing>()
 }
+
 @Singleton
 class FirebaseAuthService @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
@@ -36,7 +38,6 @@ class FirebaseAuthService @Inject constructor(
 
         Log.d(TAG, "════════════════════════════════════════")
     }
-
     val currentUser: FirebaseUser?
         get() = firebaseAuth.currentUser
     val isUserLoggedIn: Boolean
@@ -61,7 +62,7 @@ class FirebaseAuthService @Inject constructor(
 
     suspend fun signInWithEmail(email: String, password: String): AuthResult<FirebaseUser> {
         return try {
-            Log.d(TAG, "Intentando login con: $email")
+           Log.d(TAG, "Intentando login con: $email")
 
             val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
 
@@ -122,7 +123,6 @@ class FirebaseAuthService @Inject constructor(
         } catch (e: Exception) {
             Log.e(TAG, "Error en registro: ${e.message}", e)
             firebaseAuth.currentUser?.delete()
-
             AuthResult.Error(e.localizedMessage ?: "Error desconocido")
         }
     }
@@ -149,5 +149,6 @@ class FirebaseAuthService @Inject constructor(
 
         Log.d(TAG, "Sesión cerrada")
         Log.d(TAG, "Usuario actual: ${currentUser?.email ?: "Ninguno"}")
+
     }
 }

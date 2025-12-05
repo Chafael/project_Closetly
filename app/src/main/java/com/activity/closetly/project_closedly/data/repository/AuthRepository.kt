@@ -25,7 +25,6 @@ class AuthRepository @Inject constructor(
     suspend fun login(email: String, password: String): AuthResult<FirebaseUser> {
         val result = firebaseAuthService.signInWithEmail(email, password)
 
-        // Si el login es exitoso, guardar/actualizar usuario en Room
         if (result is AuthResult.Success) {
             val user = result.data
             val localUser = userDao.getUserById(user.uid)
@@ -51,7 +50,6 @@ class AuthRepository @Inject constructor(
     ): AuthResult<FirebaseUser> {
         val result = firebaseAuthService.registerWithEmail(email, password, username)
 
-        // Si el registro es exitoso, guardar usuario en Room
         if (result is AuthResult.Success) {
             val user = result.data
             userDao.insertUser(

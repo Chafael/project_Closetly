@@ -6,7 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.activity.closetly.project_closedly.ui.login.LoginScreen
-//import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
+import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
 import com.activity.closetly.project_closedly.ui.screens.home.HomeScreen
 
 object Routes {
@@ -37,19 +37,21 @@ fun NavGraph(
             )
         }
 
-        /*composable(Routes.REGISTER) {
+
+        composable(Routes.REGISTER) {
             RegisterScreen(
                 onNavigateToLogin = {
-                    navController.popBackStack()
+                    // Temporal: regresa a register hasta el merge
+                    navController.navigate(Routes.REGISTER)
                 },
                 onRegisterSuccess = {
                     navController.navigate(Routes.HOME) {
-                        popUpTo(Routes.LOGIN) { inclusive = true }
+                        popUpTo(Routes.REGISTER) { inclusive = true }
                     }
                 }
             )
         }
-*/
+
         composable(Routes.HOME) {
             HomeScreen(
                 onLogout = {
