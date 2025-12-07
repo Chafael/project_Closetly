@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.activity.closetly.project_closedly.ui.login.LoginScreen
 import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
+import com.activity.closetly.project_closedly.ui.screens.profile.ProfileScreen
 import com.activity.closetly.project_closedly.ui.screens.wardrobe.WardrobeScreen
 import com.activity.closetly.project_closedly.ui.screens.welcome.WelcomeScreen
 
@@ -22,6 +23,7 @@ object Routes {
     const val WELCOME = "welcome"
     const val WARDROBE = "wardrobe"
     const val UPLOAD_GARMENT = "upload_garment"
+    const val PROFILE = "profile"
 }
 
 @Composable
@@ -33,6 +35,7 @@ fun NavGraph(
         navController = navController,
         startDestination = startDestination
     ) {
+
         composable(Routes.LOGIN) {
             LoginScreen(
                 onNavigateToRegister = {
@@ -77,14 +80,12 @@ fun NavGraph(
                     navController.navigate(Routes.UPLOAD_GARMENT)
                 },
                 onNavigateToProfile = {
-                    // TODO: Implementar navegación a perfil
+                    navController.navigate(Routes.PROFILE)
                 }
             )
         }
 
         composable(Routes.UPLOAD_GARMENT) {
-            // TODO: Implementar en feature/upload-garment
-            // Placeholder temporal
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -94,6 +95,19 @@ fun NavGraph(
                     fontSize = 20.sp
                 )
             }
+        }
+
+        composable(Routes.PROFILE) {
+            ProfileScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onLogout = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }
