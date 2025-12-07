@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,6 +35,7 @@ fun WardrobeScreen(
     onNavigateToUpload: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {}
 ) {
+
     val garments by wardrobeViewModel.garments.collectAsState()
     val garmentCount by wardrobeViewModel.garmentCount.collectAsState()
     val selectedCategory by wardrobeViewModel.selectedCategory.collectAsState()
@@ -44,7 +44,7 @@ fun WardrobeScreen(
         topBar = {
             WardrobeTopBar(
                 garmentCount = garmentCount,
-                onSearchClick = { /* TODO: Implementar búsqueda */ },
+                onSearchClick = {  },
                 onProfileClick = onNavigateToProfile
             )
         },
@@ -68,25 +68,35 @@ fun WardrobeScreen(
                 .padding(paddingValues)
                 .background(Color(0xFFFAFAFA))
         ) {
-            // Tabs de categorías
             CategoryTabs(
                 selectedCategory = selectedCategory,
                 onCategorySelected = wardrobeViewModel::selectCategory
             )
 
-            // Grid de prendas
             if (garments.isEmpty()) {
                 EmptyWardrobeState(onAddGarment = onNavigateToUpload)
             } else {
                 GarmentGrid(
                     garments = garments,
-                    onGarmentClick = { /* TODO: Ver detalle */ }
+                    onGarmentClick = { }
                 )
             }
         }
     }
 }
 
+/**
+ * TopBar del Wardrobe
+ *
+ * Muestra:
+ * - Título "Mi Armario" con el conteo de prendas
+ * - Botón de búsqueda
+ * - Avatar del usuario que navega al perfil
+ *
+ * @param garmentCount Número total de prendas del usuario
+ * @param onSearchClick Callback para el botón de búsqueda
+ * @param onProfileClick Callback para navegar al perfil (se ejecuta al hacer clic en el avatar)
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WardrobeTopBar(
@@ -105,6 +115,7 @@ private fun WardrobeTopBar(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Sección izquierda: Título y conteo
             Column {
                 Text(
                     text = "Mi Armario",
@@ -119,9 +130,12 @@ private fun WardrobeTopBar(
                 )
             }
 
+            // Sección derecha: Búsqueda y Avatar
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                // Botón de búsqueda
                 IconButton(onClick = onSearchClick) {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -130,23 +144,41 @@ private fun WardrobeTopBar(
                     )
                 }
 
-                // Avatar del usuario
-                Surface(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clickable(onClick = onProfileClick),
-                    shape = CircleShape,
-                    color = Color(0xFFB59A7A)
+                /**
+                 * Avatar del usuario - SOLUCIÓN AL PROBLEMA
+                 *
+                 * CAMBIO IMPORTANTE:
+                 * Antes usábamos Surface con .clickable() directamente, lo cual
+                 * causaba problemas de propagación de eventos y crashes.
+                 *
+                 * SOLUCIÓN:
+                 * Usamos IconButton que envuelve al Surface. IconButton está
+                 * diseñado específicamente para manejar clicks en Compose y:
+                 * - Proporciona el tamaño táctil mínimo correcto (48dp)
+                 * - Maneja correctamente los estados de presión y hover
+                 * - Implementa el ripple effect de Material Design
+                 * - Previene problemas de propagación de eventos
+                 */
+                IconButton(
+                    onClick = onProfileClick, // ✅ Click manejado correctamente por IconButton
+                    modifier = Modifier.size(40.dp)
                 ) {
-                    Box(
-                        contentAlignment = Alignment.Center
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        shape = CircleShape,
+                        color = Color(0xFFB59A7A)
                     ) {
-                        Text(
-                            text = "A",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
-                        )
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Text(
+                                text = "A", // Inicial del usuario
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
                     }
                 }
             }
@@ -154,6 +186,16 @@ private fun WardrobeTopBar(
     }
 }
 
+/**
+ * Tabs de categorías
+ *
+ * Permite filtrar las prendas por categoría:
+ * - Todas: Muestra todas las prendas
+ * - Camisetas, Pantalones, Vestidos, Chaquetas: Filtros específicos
+ *
+ * @param selectedCategory Categoría actualmente seleccionada
+ * @param onCategorySelected Callback que se ejecuta al seleccionar una categoría
+ */
 @Composable
 private fun CategoryTabs(
     selectedCategory: String,
@@ -195,13 +237,22 @@ private fun CategoryTabs(
     }
 }
 
+/**
+ * Grid de prendas
+ *
+ * Muestra las prendas en una cuadrícula de 2 columnas.
+ * Usa LazyVerticalGrid para un rendimiento óptimo con listas grandes.
+ *
+ * @param garments Lista de prendas a mostrar
+ * @param onGarmentClick Callback que se ejecuta al hacer clic en una prenda
+ */
 @Composable
 private fun GarmentGrid(
     garments: List<GarmentEntity>,
     onGarmentClick: (GarmentEntity) -> Unit
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
+        columns = GridCells.Fixed(2), // Dos columnas fijas
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -215,6 +266,17 @@ private fun GarmentGrid(
     }
 }
 
+/**
+ * Tarjeta individual de prenda
+ *
+ * Muestra:
+ * - Imagen de la prenda (usando Coil para carga asíncrona)
+ * - Nombre de la prenda
+ * - Subcategoría
+ *
+ * @param garment Datos de la prenda a mostrar
+ * @param onClick Callback que se ejecuta al hacer clic en la tarjeta
+ */
 @Composable
 private fun GarmentCard(
     garment: GarmentEntity,
@@ -223,7 +285,7 @@ private fun GarmentCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(0.75f)
+            .aspectRatio(0.75f) // Proporción 3:4 (ancho:alto)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -275,6 +337,14 @@ private fun GarmentCard(
     }
 }
 
+/**
+ * Estado vacío del armario
+ *
+ * Se muestra cuando el usuario no tiene prendas en su armario.
+ * Incluye un mensaje informativo y un botón para añadir la primera prenda.
+ *
+ * @param onAddGarment Callback que se ejecuta al presionar el botón de añadir prenda
+ */
 @Composable
 private fun EmptyWardrobeState(
     onAddGarment: () -> Unit
