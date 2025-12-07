@@ -1,20 +1,27 @@
 package com.activity.closetly.project_closedly.navegation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.activity.closetly.project_closedly.ui.login.LoginScreen
 import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
-import com.activity.closetly.project_closedly.ui.screens.home.HomeScreen
+import com.activity.closetly.project_closedly.ui.screens.wardrobe.WardrobeScreen
 import com.activity.closetly.project_closedly.ui.screens.welcome.WelcomeScreen
 
 object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
     const val WELCOME = "welcome"
-    const val HOME = "home"
+    const val WARDROBE = "wardrobe"
+    const val UPLOAD_GARMENT = "upload_garment"
 }
 
 @Composable
@@ -32,7 +39,7 @@ fun NavGraph(
                     navController.navigate(Routes.REGISTER)
                 },
                 onLoginSuccess = {
-                    navController.navigate(Routes.HOME) {
+                    navController.navigate(Routes.WARDROBE) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 }
@@ -47,7 +54,6 @@ fun NavGraph(
                     }
                 },
                 onRegisterSuccess = {
-                    // Navegar a la pantalla de bienvenida
                     navController.navigate(Routes.WELCOME) {
                         popUpTo(Routes.REGISTER) { inclusive = true }
                     }
@@ -58,21 +64,36 @@ fun NavGraph(
         composable(Routes.WELCOME) {
             WelcomeScreen(
                 onContinue = {
-                    navController.navigate(Routes.HOME) {
+                    navController.navigate(Routes.WARDROBE) {
                         popUpTo(Routes.WELCOME) { inclusive = true }
                     }
                 }
             )
         }
 
-        composable(Routes.HOME) {
-            HomeScreen(
-                onLogout = {
-                    navController.navigate(Routes.LOGIN) {
-                        popUpTo(Routes.HOME) { inclusive = true }
-                    }
+        composable(Routes.WARDROBE) {
+            WardrobeScreen(
+                onNavigateToUpload = {
+                    navController.navigate(Routes.UPLOAD_GARMENT)
+                },
+                onNavigateToProfile = {
+                    // TODO: Implementar navegación a perfil
                 }
             )
+        }
+
+        composable(Routes.UPLOAD_GARMENT) {
+            // TODO: Implementar en feature/upload-garment
+            // Placeholder temporal
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Pantalla de Subir Prenda",
+                    fontSize = 20.sp
+                )
+            }
         }
     }
 }
