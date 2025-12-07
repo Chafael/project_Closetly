@@ -10,7 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,6 +29,11 @@ import com.activity.closetly.project_closedly.R
 import com.activity.closetly.project_closedly.data.local.entity.GarmentEntity
 import com.activity.closetly.project_closedly.ui.viewmodel.WardrobeViewModel
 
+private val PrimaryBrown = Color(0xFF705840)
+private val LightBrown = Color(0xFFA28460)
+private val SecondaryGray = Color(0xFF6B7280)
+private val BackgroundGray = Color(0xFFFAFAFA)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WardrobeScreen(
@@ -41,17 +46,11 @@ fun WardrobeScreen(
     val selectedCategory by wardrobeViewModel.selectedCategory.collectAsState()
 
     Scaffold(
-        topBar = {
-            WardrobeTopBar(
-                garmentCount = garmentCount,
-                onSearchClick = { /* TODO: Implementar búsqueda */ },
-                onProfileClick = onNavigateToProfile
-            )
-        },
+        containerColor = BackgroundGray,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToUpload,
-                containerColor = Color(0xFFB59A7A),
+                containerColor = LightBrown,
                 shape = CircleShape
             ) {
                 Icon(
@@ -66,28 +65,30 @@ fun WardrobeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFFAFAFA))
         ) {
-            // Tabs de categorías
+            WardrobeTopBar(
+                garmentCount = garmentCount,
+                onSearchClick = { },
+                onProfileClick = onNavigateToProfile
+            )
+
             CategoryTabs(
                 selectedCategory = selectedCategory,
                 onCategorySelected = wardrobeViewModel::selectCategory
             )
 
-            // Grid de prendas
             if (garments.isEmpty()) {
                 EmptyWardrobeState(onAddGarment = onNavigateToUpload)
             } else {
                 GarmentGrid(
                     garments = garments,
-                    onGarmentClick = { /* TODO: Ver detalle */ }
+                    onGarmentClick = { }
                 )
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WardrobeTopBar(
     garmentCount: Int,
@@ -98,7 +99,7 @@ private fun WardrobeTopBar(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -110,33 +111,33 @@ private fun WardrobeTopBar(
                     text = "Mi Armario",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF6D5D52)
+                    color = PrimaryBrown
                 )
                 Text(
                     text = "$garmentCount prendas",
                     fontSize = 14.sp,
-                    color = Color.Gray
+                    color = SecondaryGray
                 )
             }
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onSearchClick) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Buscar",
-                        tint = Color.Gray
+                        tint = PrimaryBrown
                     )
                 }
 
-                // Avatar del usuario
                 Surface(
                     modifier = Modifier
                         .size(40.dp)
                         .clickable(onClick = onProfileClick),
                     shape = CircleShape,
-                    color = Color(0xFFB59A7A)
+                    color = LightBrown
                 ) {
                     Box(
                         contentAlignment = Alignment.Center
@@ -159,37 +160,57 @@ private fun CategoryTabs(
     selectedCategory: String,
     onCategorySelected: (String) -> Unit
 ) {
-    val categories = listOf("Todas", "Camisetas", "Pantalones", "Vestidos", "Chaquetas")
+    val categories = listOf("Todas", "Camisetas", "Pantalones", "Vestidos", "...")
 
-    ScrollableTabRow(
-        selectedTabIndex = categories.indexOf(selectedCategory),
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White),
-        edgePadding = 16.dp,
-        containerColor = Color.White,
-        contentColor = Color(0xFFB59A7A),
-        indicator = { /* Sin indicador personalizado */ }
+            .background(Color.White)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         categories.forEach { category ->
             val isSelected = category == selectedCategory
-            Tab(
-                selected = isSelected,
-                onClick = { onCategorySelected(category) },
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(
-                        if (isSelected) Color(0xFFB59A7A)
-                        else Color.Transparent
-                    )
-            ) {
-                Text(
-                    text = category,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    color = if (isSelected) Color.White else Color.Gray,
-                    fontSize = 14.sp
-                )
+
+            if (category == "...") {
+                Surface(
+                    modifier = Modifier
+                        .height(36.dp)
+                        .clickable { },
+                    shape = RoundedCornerShape(18.dp),
+                    color = Color.Transparent
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreHoriz,
+                            contentDescription = "Más categorías",
+                            tint = SecondaryGray
+                        )
+                    }
+                }
+            } else {
+                Surface(
+                    modifier = Modifier
+                        .height(36.dp)
+                        .clickable { onCategorySelected(category) },
+                    shape = RoundedCornerShape(18.dp),
+                    color = if (isSelected) LightBrown else Color.Transparent
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    ) {
+                        Text(
+                            text = category,
+                            color = if (isSelected) Color.White else SecondaryGray,
+                            fontSize = 14.sp,
+                            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal
+                        )
+                    }
+                }
             }
         }
     }
@@ -204,7 +225,8 @@ private fun GarmentGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.background(BackgroundGray)
     ) {
         items(garments) { garment ->
             GarmentCard(
@@ -229,12 +251,11 @@ private fun GarmentCard(
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Imagen de la prenda
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -246,12 +267,10 @@ private fun GarmentCard(
                     contentDescription = garment.name,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
-                    placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
                     error = painterResource(id = R.drawable.ic_launcher_foreground)
                 )
             }
 
-            // Información de la prenda
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -261,13 +280,13 @@ private fun GarmentCard(
                     text = garment.name,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF212121),
+                    color = PrimaryBrown,
                     maxLines = 1
                 )
                 Text(
                     text = garment.subcategory ?: "Sin categoría",
                     fontSize = 12.sp,
-                    color = Color.Gray,
+                    color = SecondaryGray,
                     maxLines = 1
                 )
             }
@@ -282,6 +301,7 @@ private fun EmptyWardrobeState(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(BackgroundGray)
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -290,7 +310,7 @@ private fun EmptyWardrobeState(
             text = "Tu armario está vacío",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Gray
+            color = SecondaryGray
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -298,7 +318,7 @@ private fun EmptyWardrobeState(
         Text(
             text = "Comienza añadiendo tu primera prenda",
             fontSize = 14.sp,
-            color = Color.Gray
+            color = SecondaryGray
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -306,7 +326,7 @@ private fun EmptyWardrobeState(
         Button(
             onClick = onAddGarment,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFB59A7A)
+                containerColor = LightBrown
             ),
             shape = RoundedCornerShape(12.dp)
         ) {
