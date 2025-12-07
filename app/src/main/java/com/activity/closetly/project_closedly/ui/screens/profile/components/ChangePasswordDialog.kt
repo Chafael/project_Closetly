@@ -12,28 +12,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.activity.closetly.project_closedly.ui.login.components.TextFieldWithLabel
 
-/**
- * Diálogo modal para cambiar la contraseña del usuario.
- * Solicita la contraseña actual, la nueva contraseña y su confirmación.
- * Muestra los requisitos que debe cumplir la nueva contraseña.
- *
- * @param currentPassword Contraseña actual del usuario
- * @param newPassword Nueva contraseña ingresada
- * @param confirmNewPassword Confirmación de la nueva contraseña
- * @param isPasswordVisible Controla visibilidad de contraseña actual
- * @param isNewPasswordVisible Controla visibilidad de nueva contraseña
- * @param isConfirmPasswordVisible Controla visibilidad de confirmación
- * @param isLoading Indica si hay una operación en progreso
- * @param errorMessage Mensaje de error si la validación o actualización falla
- * @param onCurrentPasswordChange Callback cuando cambia contraseña actual
- * @param onNewPasswordChange Callback cuando cambia nueva contraseña
- * @param onConfirmNewPasswordChange Callback cuando cambia confirmación
- * @param onTogglePasswordVisibility Callback para alternar visibilidad actual
- * @param onToggleNewPasswordVisibility Callback para alternar visibilidad nueva
- * @param onToggleConfirmPasswordVisibility Callback para alternar visibilidad confirmación
- * @param onConfirm Callback cuando se confirma el cambio
- * @param onDismiss Callback cuando se cancela el diálogo
- */
 @Composable
 fun ChangePasswordDialog(
     currentPassword: String,
@@ -52,7 +30,7 @@ fun ChangePasswordDialog(
     onToggleConfirmPasswordVisibility: () -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
-) {
+)  {
     AlertDialog(
         onDismissRequest = { if (!isLoading) onDismiss() },
         title = {
@@ -66,7 +44,6 @@ fun ChangePasswordDialog(
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // Descripción
                 Text(
                     text = "Tu contraseña de acceso",
                     fontSize = 14.sp,
@@ -75,7 +52,6 @@ fun ChangePasswordDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Campo: Contraseña actual
                 TextFieldWithLabel(
                     label = "Contraseña actual",
                     value = currentPassword,
@@ -91,7 +67,6 @@ fun ChangePasswordDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Campo: Nueva contraseña
                 TextFieldWithLabel(
                     label = "Nueva contraseña",
                     value = newPassword,
@@ -107,7 +82,6 @@ fun ChangePasswordDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Campo: Confirmar nueva contraseña
                 TextFieldWithLabel(
                     label = "Confirmar nueva contraseña",
                     value = confirmNewPassword,
@@ -121,7 +95,6 @@ fun ChangePasswordDialog(
                     isError = errorMessage != null
                 )
 
-                // Mensaje de error
                 errorMessage?.let { error ->
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -133,7 +106,6 @@ fun ChangePasswordDialog(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Requisitos de contraseña
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
@@ -201,12 +173,6 @@ fun ChangePasswordDialog(
     )
 }
 
-/**
- * Componente que muestra un requisito de contraseña con indicador visual.
- *
- * @param text Descripción del requisito
- * @param isMet true si el requisito se cumple, false en caso contrario
- */
 @Composable
 private fun PasswordRequirement(
     text: String,
