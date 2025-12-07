@@ -1,6 +1,7 @@
 package com.activity.closetly.project_closedly.data.remote
 
 import android.util.Log
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
@@ -12,6 +13,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val TAG = "FirebaseAuthService"
+
 sealed class AuthResult<out T> {
     data class Success<T>(val data: T) : AuthResult<T>()
     data class Error(val message: String) : AuthResult<Nothing>()
@@ -30,7 +32,6 @@ class FirebaseAuthService @Inject constructor(
         Log.d(TAG, "Auth inicializado: ${firebaseAuth.currentUser != null}")
         Log.d(TAG, "Firestore inicializado: ${firestore.app.name}")
 
-        // Si hay un usuario actual, mostrar info
         currentUser?.let { user ->
             Log.d(TAG, "Usuario actual: ${user.email}")
             Log.d(TAG, "UID: ${user.uid}")
@@ -38,13 +39,15 @@ class FirebaseAuthService @Inject constructor(
 
         Log.d(TAG, "════════════════════════════════════════")
     }
+
     val currentUser: FirebaseUser?
         get() = firebaseAuth.currentUser
+
     val isUserLoggedIn: Boolean
         get() = currentUser != null
 
     fun observeAuthState(): Flow<FirebaseUser?> = callbackFlow {
-        Log.d(TAG, "🔍 Iniciando observación de estado de auth")
+        Log.d(TAG, "Iniciando observación de estado de auth")
 
         val listener = FirebaseAuth.AuthStateListener { auth ->
             val user = auth.currentUser
@@ -62,7 +65,7 @@ class FirebaseAuthService @Inject constructor(
 
     suspend fun signInWithEmail(email: String, password: String): AuthResult<FirebaseUser> {
         return try {
-           Log.d(TAG, "Intentando login con: $email")
+            Log.d(TAG, "Intentando login con: $email")
 
             val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
 
@@ -80,6 +83,7 @@ class FirebaseAuthService @Inject constructor(
             AuthResult.Error(e.localizedMessage ?: "Error desconocido")
         }
     }
+
     suspend fun registerWithEmail(
         email: String,
         password: String,
@@ -88,7 +92,6 @@ class FirebaseAuthService @Inject constructor(
         return try {
             Log.d(TAG, "Intentando registro con: $email")
 
-            // Crear usuario en Firebase Authentication
             val result = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
 
             result.user?.let { user ->
@@ -96,7 +99,6 @@ class FirebaseAuthService @Inject constructor(
                 Log.d(TAG, "Email: ${user.email}")
                 Log.d(TAG, "UID: ${user.uid}")
 
-                // Guardar datos adicionales en Firestore
                 val userData = hashMapOf(
                     "uid" to user.uid,
                     "email" to email,
@@ -104,9 +106,8 @@ class FirebaseAuthService @Inject constructor(
                     "createdAt" to System.currentTimeMillis()
                 )
 
-                Log.d(TAG, "💾 Guardando datos en Firestore...")
+                Log.d(TAG, "Guardando datos en Firestore...")
 
-                // La colección "users" tendrá un documento con ID = UID del usuario
                 firestore.collection("users")
                     .document(user.uid)
                     .set(userData)
@@ -141,6 +142,83 @@ class FirebaseAuthService @Inject constructor(
         }
     }
 
+    suspend fun updateUserEmail(
+        currentPassword: String,
+        newEmail: String
+    ): AuthResult<Unit> {
+        return try {
+            val user = currentUser ?: return AuthResult.Error("No hay usuario autenticado")
+            val email = user.email ?: return AuthResult.Error("Email actual no disponible")
+
+            Log.d(TAG, "Actualizando email de $email a $newEmail")
+
+            val credential = EmailAuthProvider.getCredential(email, currentPassword)
+            user.reauthenticate(credential).await()
+            Log.d(TAG, "Re-autenticación exitosa")
+
+            user.updateEmail(newEmail).await()
+            Log.d(TAG, "Email actualizado en Authentication")
+
+            firestore.collection("users")
+                .document(user.uid)
+                .update("email", newEmail)
+                .await()
+            Log.d(TAG, "Email actualizado en Firestore")
+
+            AuthResult.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al actualizar email: ${e.message}", e)
+            AuthResult.Error(e.localizedMessage ?: "Error al actualizar email")
+        }
+    }
+
+    suspend fun updateUserPassword(
+        currentPassword: String,
+        newPassword: String
+    ): AuthResult<Unit> {
+        return try {
+            val user = currentUser ?: return AuthResult.Error("No hay usuario autenticado")
+            val email = user.email ?: return AuthResult.Error("Email no disponible")
+
+            Log.d(TAG, "Actualizando contraseña para: $email")
+
+            val credential = EmailAuthProvider.getCredential(email, currentPassword)
+            user.reauthenticate(credential).await()
+            Log.d(TAG, "Re-autenticación exitosa")
+
+            user.updatePassword(newPassword).await()
+            Log.d(TAG, "Contraseña actualizada exitosamente")
+
+            AuthResult.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al actualizar contraseña: ${e.message}", e)
+            AuthResult.Error(e.localizedMessage ?: "Error al actualizar contraseña")
+        }
+    }
+
+    suspend fun getUserData(userId: String): AuthResult<Map<String, Any>> {
+        return try {
+            Log.d(TAG, "Obteniendo datos de usuario: $userId")
+
+            val document = firestore.collection("users")
+                .document(userId)
+                .get()
+                .await()
+
+            if (document.exists()) {
+                val data = document.data ?: emptyMap()
+                Log.d(TAG, "Datos obtenidos: $data")
+                AuthResult.Success(data)
+            } else {
+                Log.e(TAG, "Documento no existe")
+                AuthResult.Error("Usuario no encontrado")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al obtener datos: ${e.message}", e)
+            AuthResult.Error(e.localizedMessage ?: "Error al obtener datos")
+        }
+    }
+
     fun signOut() {
         val userEmail = currentUser?.email
         Log.d(TAG, "Cerrando sesión de: $userEmail")
@@ -149,6 +227,5 @@ class FirebaseAuthService @Inject constructor(
 
         Log.d(TAG, "Sesión cerrada")
         Log.d(TAG, "Usuario actual: ${currentUser?.email ?: "Ninguno"}")
-
     }
 }
