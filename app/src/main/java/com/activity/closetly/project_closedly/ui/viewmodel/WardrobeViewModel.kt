@@ -21,17 +21,19 @@ class WardrobeViewModel @Inject constructor(
     private val _selectedCategory = MutableStateFlow("Todas")
     val selectedCategory: StateFlow<String> = _selectedCategory.asStateFlow()
 
-    val garments: StateFlow<List<GarmentEntity>> = _selectedCategory.flatMapLatest { category ->
-        if (category == "Todas") {
-            garmentRepository.getAllGarmentsByUser(userId)
-        } else {
-            garmentRepository.getGarmentsByCategory(userId, category)
+    val garments: StateFlow<List<GarmentEntity>> = _selectedCategory
+        .flatMapLatest { category ->
+            if (category == "Todas") {
+                garmentRepository.getAllGarmentsByUser(userId)
+            } else {
+                garmentRepository.getGarmentsByCategory(userId, category)
+            }
         }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
-    )
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     val garmentCount: StateFlow<Int> = garmentRepository.getGarmentCount(userId)
         .stateIn(
@@ -44,15 +46,15 @@ class WardrobeViewModel @Inject constructor(
         _selectedCategory.value = category
     }
 
-    fun toggleFavorite(garmentId: String, isFavorite: Boolean) {
-        viewModelScope.launch {
-            garmentRepository.toggleFavorite(garmentId, !isFavorite)
-        }
-    }
-
     fun deleteGarment(garment: GarmentEntity) {
         viewModelScope.launch {
             garmentRepository.deleteGarment(garment)
+        }
+    }
+
+    fun toggleFavorite(garment: GarmentEntity) {
+        viewModelScope.launch {
+            garmentRepository.updateFavoriteStatus(garment.id, !garment.isFavorite)
         }
     }
 }
