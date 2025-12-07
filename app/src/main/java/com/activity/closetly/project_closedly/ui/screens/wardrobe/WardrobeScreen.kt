@@ -43,7 +43,7 @@ fun WardrobeScreen(
         topBar = {
             WardrobeTopBar(
                 garmentCount = garmentCount,
-                onSearchClick = {  },
+                onSearchClick = { },
                 onProfileClick = onNavigateToProfile
             )
         },
@@ -130,10 +130,10 @@ private fun WardrobeTopBar(
 
                 IconButton(
                     onClick = onProfileClick,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(48.dp)
                 ) {
                     Surface(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.size(40.dp),
                         shape = CircleShape,
                         color = Color(0xFFB59A7A)
                     ) {
