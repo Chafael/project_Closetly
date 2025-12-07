@@ -104,7 +104,7 @@ class ProfileViewModel @Inject constructor(
         }
 
         if (uiState.currentPassword.isBlank()) {
-            uiState = uiState.copy(errorMessage = "Ingresa tu contraseña actual")
+            uiState = uiState.copy(errorMessage = "Ingresa tu contraseña actual para confirmar el cambio")
             return
         }
 
@@ -118,12 +118,11 @@ class ProfileViewModel @Inject constructor(
                 is AuthResult.Success -> {
                     uiState = uiState.copy(
                         isLoading = false,
-                        showEmailDialog = false,
                         email = uiState.newEmail,
                         currentEmail = uiState.newEmail,
                         newEmail = "",
                         currentPassword = "",
-                        successMessage = "Email actualizado exitosamente"
+                        successMessage = "✓ Email actualizado exitosamente"
                     )
                 }
                 is AuthResult.Error -> {
@@ -144,7 +143,6 @@ class ProfileViewModel @Inject constructor(
     fun onConfirmNewPasswordChange(value: String) {
         uiState = uiState.copy(confirmNewPassword = value, errorMessage = null)
     }
-
 
     fun onToggleNewPasswordVisibility() {
         uiState = uiState.copy(isNewPasswordVisible = !uiState.isNewPasswordVisible)
@@ -237,7 +235,6 @@ class ProfileViewModel @Inject constructor(
             }
         }
     }
-
     fun clearSuccessMessage() {
         uiState = uiState.copy(successMessage = null)
     }
