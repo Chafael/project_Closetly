@@ -218,11 +218,10 @@ class ProfileViewModel @Inject constructor(
                 is AuthResult.Success -> {
                     uiState = uiState.copy(
                         isLoading = false,
-                        showPasswordDialog = false,
                         currentPassword = "",
                         newPassword = "",
                         confirmNewPassword = "",
-                        successMessage = "Contraseña actualizada exitosamente"
+                        successMessage = "✓ Contraseña actualizada exitosamente"
                     )
                 }
                 is AuthResult.Error -> {
@@ -235,6 +234,7 @@ class ProfileViewModel @Inject constructor(
             }
         }
     }
+
     fun clearSuccessMessage() {
         uiState = uiState.copy(successMessage = null)
     }
