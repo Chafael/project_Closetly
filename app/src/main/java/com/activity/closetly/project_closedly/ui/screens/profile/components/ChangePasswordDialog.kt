@@ -30,7 +30,7 @@ fun ChangePasswordDialog(
     onToggleConfirmPasswordVisibility: () -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
-)  {
+) {
     AlertDialog(
         onDismissRequest = { if (!isLoading) onDismiss() },
         title = {
@@ -44,6 +44,7 @@ fun ChangePasswordDialog(
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
+                // Descripción
                 Text(
                     text = "Tu contraseña de acceso",
                     fontSize = 14.sp,

@@ -1,233 +1,40 @@
-package com.activity.closetly.project_closedly.ui.screens.profile.components
+package com.activity.closetly.project_closedly
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.activity.closetly.project_closedly.ui.login.components.TextFieldWithLabel
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.activity.closetly.project_closedly.navegation.NavGraph
+import com.activity.closetly.project_closedly.navegation.Routes
+import com.activity.closetly.project_closedly.ui.theme.Project_ClosetlyTheme
+import com.activity.closetly.project_closedly.ui.viewmodel.AuthStateViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
-/**
- * Diálogo modal para cambiar la contraseña del usuario.
- * Solicita la contraseña actual, la nueva contraseña y su confirmación.
- * Muestra los requisitos que debe cumplir la nueva contraseña.
- *
- * @param currentPassword Contraseña actual del usuario
- * @param newPassword Nueva contraseña ingresada
- * @param confirmNewPassword Confirmación de la nueva contraseña
- * @param isPasswordVisible Controla visibilidad de contraseña actual
- * @param isNewPasswordVisible Controla visibilidad de nueva contraseña
- * @param isConfirmPasswordVisible Controla visibilidad de confirmación
- * @param isLoading Indica si hay una operación en progreso
- * @param errorMessage Mensaje de error si la validación o actualización falla
- * @param onCurrentPasswordChange Callback cuando cambia contraseña actual
- * @param onNewPasswordChange Callback cuando cambia nueva contraseña
- * @param onConfirmNewPasswordChange Callback cuando cambia confirmación
- * @param onTogglePasswordVisibility Callback para alternar visibilidad actual
- * @param onToggleNewPasswordVisibility Callback para alternar visibilidad nueva
- * @param onToggleConfirmPasswordVisibility Callback para alternar visibilidad confirmación
- * @param onConfirm Callback cuando se confirma el cambio
- * @param onDismiss Callback cuando se cancela el diálogo
- */
-@Composable
-fun ChangePasswordDialog(
-    currentPassword: String,
-    newPassword: String,
-    confirmNewPassword: String,
-    isPasswordVisible: Boolean,
-    isNewPasswordVisible: Boolean,
-    isConfirmPasswordVisible: Boolean,
-    isLoading: Boolean,
-    errorMessage: String?,
-    onCurrentPasswordChange: (String) -> Unit,
-    onNewPasswordChange: (String) -> Unit,
-    onConfirmNewPasswordChange: (String) -> Unit,
-    onTogglePasswordVisibility: () -> Unit,
-    onToggleNewPasswordVisibility: () -> Unit,
-    onToggleConfirmPasswordVisibility: () -> Unit,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = { if (!isLoading) onDismiss() },
-        title = {
-            Text(
-                text = "Cambiar Contraseña",
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-        },
-        text = {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Descripción
-                Text(
-                    text = "Tu contraseña de acceso",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
 
-                Spacer(modifier = Modifier.height(16.dp))
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-                // Campo: Contraseña actual
-                TextFieldWithLabel(
-                    label = "Contraseña actual",
-                    value = currentPassword,
-                    onValueChange = onCurrentPasswordChange,
-                    placeholder = "••••••••",
-                    keyboardType = KeyboardType.Password,
-                    isPassword = true,
-                    passwordVisible = isPasswordVisible,
-                    onPasswordToggle = onTogglePasswordVisibility,
-                    enabled = !isLoading,
-                    isError = errorMessage != null
-                )
+        enableEdgeToEdge()
 
-                Spacer(modifier = Modifier.height(16.dp))
+        setContent {
+            Project_ClosetlyTheme {
+                val authViewModel: AuthStateViewModel = hiltViewModel()
 
-                // Campo: Nueva contraseña
-                TextFieldWithLabel(
-                    label = "Nueva contraseña",
-                    value = newPassword,
-                    onValueChange = onNewPasswordChange,
-                    placeholder = "••••••••",
-                    keyboardType = KeyboardType.Password,
-                    isPassword = true,
-                    passwordVisible = isNewPasswordVisible,
-                    onPasswordToggle = onToggleNewPasswordVisibility,
-                    enabled = !isLoading,
-                    isError = errorMessage != null
-                )
+                val isUserLoggedIn by authViewModel.isUserLoggedIn.collectAsState()
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Campo: Confirmar nueva contraseña
-                TextFieldWithLabel(
-                    label = "Confirmar nueva contraseña",
-                    value = confirmNewPassword,
-                    onValueChange = onConfirmNewPasswordChange,
-                    placeholder = "••••••••",
-                    keyboardType = KeyboardType.Password,
-                    isPassword = true,
-                    passwordVisible = isConfirmPasswordVisible,
-                    onPasswordToggle = onToggleConfirmPasswordVisibility,
-                    enabled = !isLoading,
-                    isError = errorMessage != null
-                )
-
-                // Mensaje de error
-                errorMessage?.let { error ->
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = error,
-                        color = MaterialTheme.colorScheme.error,
-                        fontSize = 13.sp
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Requisitos de contraseña
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFF5F5F5)
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(12.dp)
-                    ) {
-                        Text(
-                            text = "Requisitos de contraseña:",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF424242)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        PasswordRequirement(
-                            text = "Mínimo 8 caracteres",
-                            isMet = newPassword.length >= 8
-                        )
-                        PasswordRequirement(
-                            text = "Al menos una letra mayúscula",
-                            isMet = newPassword.any { it.isUpperCase() }
-                        )
-                        PasswordRequirement(
-                            text = "Al menos un número",
-                            isMet = newPassword.any { it.isDigit() }
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = onConfirm,
-                enabled = !isLoading,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFB59A7A)
-                ),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        color = Color.White,
-                        strokeWidth = 2.dp
-                    )
+                val startDestination = if (isUserLoggedIn) {
+                    Routes.WARDROBE
                 } else {
-                    Text("Cambiar Contraseña")
+                    Routes.LOGIN
                 }
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                enabled = !isLoading
-            ) {
-                Text("Cancelar", color = Color.Gray)
-            }
-        },
-        shape = RoundedCornerShape(16.dp),
-        containerColor = Color.White
-    )
-}
 
-/**
- * Componente que muestra un requisito de contraseña con indicador visual.
- *
- * @param text Descripción del requisito
- * @param isMet true si el requisito se cumple, false en caso contrario
- */
-@Composable
-private fun PasswordRequirement(
-    text: String,
-    isMet: Boolean
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp)
-    ) {
-        Text(
-            text = if (isMet) "✓" else "○",
-            color = if (isMet) Color(0xFF4CAF50) else Color.Gray,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(end = 8.dp)
-        )
-        Text(
-            text = text,
-            fontSize = 12.sp,
-            color = if (isMet) Color(0xFF424242) else Color.Gray
-        )
+                NavGraph(startDestination = startDestination)
+            }
+        }
     }
 }
