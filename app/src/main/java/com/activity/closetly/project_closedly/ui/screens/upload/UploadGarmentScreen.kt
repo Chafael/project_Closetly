@@ -22,7 +22,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -308,6 +307,20 @@ private fun FormSection(
     onBrandChange: (String) -> Unit,
     onSeasonChange: (String) -> Unit
 ) {
+    // CATEGORÍAS SINCRONIZADAS CON WARDROBE
+    val allCategories = listOf(
+        "Camisetas",
+        "Pantalones",
+        "Zapatos",
+        "Accesorios",
+        "Bolsos",
+        "Ropa interior",
+        "Trajes de baño",
+        "Deportiva",
+        "Vestidos",
+        "Chaquetas"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -334,7 +347,7 @@ private fun FormSection(
         DropdownField(
             label = "Categoría",
             value = uiState.category,
-            options = listOf("Camisetas", "Pantalones", "Vestidos", "Chaquetas"),
+            options = allCategories,
             onValueChange = onCategoryChange,
             enabled = !uiState.isLoading
         )
