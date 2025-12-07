@@ -103,7 +103,9 @@ fun NavGraph(
                 onNavigateToProfile = {
                     Log.d(TAG, "CLICK EN AVATAR - Navegando a Profile desde Wardrobe")
                     Log.d(TAG, "Current destination: ${navController.currentDestination?.route}")
-                    Log.d(TAG, "Back stack size: ${navController.backQueue.size}")
+
+                    // Línea problemática eliminada
+                    // Log.d(TAG, "Back stack size: ${navController.backQueue.size}")
 
                     try {
                         navController.navigate(Routes.PROFILE)
@@ -131,7 +133,8 @@ fun NavGraph(
 
         composable(Routes.PROFILE) {
             Log.d(TAG, "Mostrando ProfileScreen")
-            Log.d(TAG, "Back stack al entrar a Profile: ${navController.backQueue.map { it.destination.route }}")
+            // Línea problemática eliminada
+            // Log.d(TAG, "Back stack al entrar a Profile: ${navController.backQueue.map { it.destination.route }}")
 
             ProfileScreen(
                 onNavigateBack = {
