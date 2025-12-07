@@ -9,9 +9,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,7 +32,6 @@ private val LightBrown = Color(0xFFA28460)
 private val SecondaryGray = Color(0xFF6B7280)
 private val BackgroundGray = Color(0xFFFAFAFA)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WardrobeScreen(
     wardrobeViewModel: WardrobeViewModel = hiltViewModel(),
@@ -59,6 +56,12 @@ fun WardrobeScreen(
                     tint = Color.White
                 )
             }
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                selectedTab = 0,
+                onTabSelected = { }
+            )
         }
     ) { paddingValues ->
         Column(
@@ -90,65 +93,166 @@ fun WardrobeScreen(
 }
 
 @Composable
+private fun BottomNavigationBar(
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit
+) {
+    NavigationBar(
+        containerColor = Color.White,
+        tonalElevation = 8.dp
+    ) {
+        NavigationBarItem(
+            selected = selectedTab == 0,
+            onClick = { onTabSelected(0) },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Home,
+                    contentDescription = "Armario"
+                )
+            },
+            label = {
+                Text(
+                    "Armario",
+                    fontSize = 12.sp
+                )
+            },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = LightBrown,
+                selectedTextColor = LightBrown,
+                unselectedIconColor = SecondaryGray,
+                unselectedTextColor = SecondaryGray,
+                indicatorColor = Color.Transparent
+            )
+        )
+
+        NavigationBarItem(
+            selected = selectedTab == 1,
+            onClick = { onTabSelected(1) },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Apps,
+                    contentDescription = "Outfits"
+                )
+            },
+            label = {
+                Text(
+                    "Outfits",
+                    fontSize = 12.sp
+                )
+            },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = LightBrown,
+                selectedTextColor = LightBrown,
+                unselectedIconColor = SecondaryGray,
+                unselectedTextColor = SecondaryGray,
+                indicatorColor = Color.Transparent
+            )
+        )
+
+        NavigationBarItem(
+            selected = selectedTab == 2,
+            onClick = { onTabSelected(2) },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Crear"
+                )
+            },
+            label = {
+                Text(
+                    "Crear",
+                    fontSize = 12.sp
+                )
+            },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = LightBrown,
+                selectedTextColor = LightBrown,
+                unselectedIconColor = SecondaryGray,
+                unselectedTextColor = SecondaryGray,
+                indicatorColor = Color.Transparent
+            )
+        )
+
+        NavigationBarItem(
+            selected = selectedTab == 3,
+            onClick = { onTabSelected(3) },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Perfil"
+                )
+            },
+            label = {
+                Text(
+                    "Perfil",
+                    fontSize = 12.sp
+                )
+            },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = LightBrown,
+                selectedTextColor = LightBrown,
+                unselectedIconColor = SecondaryGray,
+                unselectedTextColor = SecondaryGray,
+                indicatorColor = Color.Transparent
+            )
+        )
+    }
+}
+
+@Composable
 private fun WardrobeTopBar(
     garmentCount: Int,
     onSearchClick: () -> Unit,
     onProfileClick: () -> Unit
 ) {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 16.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        Column {
+            Text(
+                text = "Mi Armario",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = PrimaryBrown
+            )
+            Text(
+                text = "$garmentCount prendas",
+                fontSize = 14.sp,
+                color = SecondaryGray
+            )
+        }
+
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(
-                    text = "Mi Armario",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = PrimaryBrown
-                )
-                Text(
-                    text = "$garmentCount prendas",
-                    fontSize = 14.sp,
-                    color = SecondaryGray
+            IconButton(onClick = onSearchClick) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Buscar",
+                    tint = SecondaryGray
                 )
             }
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Surface(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clickable(onClick = onProfileClick),
+                shape = CircleShape,
+                color = LightBrown
             ) {
-                IconButton(onClick = onSearchClick) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Buscar",
-                        tint = PrimaryBrown
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "A",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
                     )
-                }
-
-                Surface(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clickable(onClick = onProfileClick),
-                    shape = CircleShape,
-                    color = LightBrown
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "A",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
-                        )
-                    }
                 }
             }
         }
@@ -160,58 +264,49 @@ private fun CategoryTabs(
     selectedCategory: String,
     onCategorySelected: (String) -> Unit
 ) {
-    val categories = listOf("Todas", "Camisetas", "Pantalones", "Vestidos", "...")
+    val categories = listOf("Todas", "Camisetas", "Pantalones", "Vestidos")
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         categories.forEach { category ->
             val isSelected = category == selectedCategory
 
-            if (category == "...") {
-                Surface(
-                    modifier = Modifier
-                        .height(36.dp)
-                        .clickable { },
-                    shape = RoundedCornerShape(18.dp),
-                    color = Color.Transparent
+            Surface(
+                modifier = Modifier
+                    .height(36.dp)
+                    .clickable { onCategorySelected(category) },
+                shape = RoundedCornerShape(18.dp),
+                color = if (isSelected) LightBrown else Color.Transparent
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.padding(horizontal = 20.dp)
                 ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MoreHoriz,
-                            contentDescription = "Más categorías",
-                            tint = SecondaryGray
-                        )
-                    }
-                }
-            } else {
-                Surface(
-                    modifier = Modifier
-                        .height(36.dp)
-                        .clickable { onCategorySelected(category) },
-                    shape = RoundedCornerShape(18.dp),
-                    color = if (isSelected) LightBrown else Color.Transparent
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    ) {
-                        Text(
-                            text = category,
-                            color = if (isSelected) Color.White else SecondaryGray,
-                            fontSize = 14.sp,
-                            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal
-                        )
-                    }
+                    Text(
+                        text = category,
+                        color = if (isSelected) Color.White else SecondaryGray,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal
+                    )
                 }
             }
+        }
+
+        IconButton(
+            onClick = { },
+            modifier = Modifier.size(36.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.MoreHoriz,
+                contentDescription = "Más",
+                tint = SecondaryGray
+            )
         }
     }
 }
@@ -224,8 +319,8 @@ private fun GarmentGrid(
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.background(BackgroundGray)
     ) {
         items(garments) { garment ->
@@ -247,11 +342,11 @@ private fun GarmentCard(
             .fillMaxWidth()
             .aspectRatio(0.75f)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -260,7 +355,8 @@ private fun GarmentCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .background(Color(0xFFF5F5F5))
+                    .background(Color(0xFFF0F0F0)),
+                contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
                     model = garment.imageUrl,
@@ -278,14 +374,15 @@ private fun GarmentCard(
             ) {
                 Text(
                     text = garment.name,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
                     color = PrimaryBrown,
                     maxLines = 1
                 )
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = garment.subcategory ?: "Sin categoría",
-                    fontSize = 12.sp,
+                    text = garment.subcategory ?: "Casual",
+                    fontSize = 13.sp,
                     color = SecondaryGray,
                     maxLines = 1
                 )
