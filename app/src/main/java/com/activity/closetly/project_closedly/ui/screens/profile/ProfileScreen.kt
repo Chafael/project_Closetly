@@ -8,23 +8,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.activity.closetly.project_closedly.ui.screens.profile.components.ChangeEmailDialog
-import com.activity.closetly.project_closedly.ui.screens.profile.components.ChangePasswordDialog
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -49,24 +46,18 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        text = "Perfil",
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                },
+                title = { },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver",
-                            tint = Color.White
+                            tint = Color(0xFF424242)
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFB59A7A)
+                    containerColor = Color.White
                 )
             )
         },
@@ -85,251 +76,454 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFFAFAFA))
+                .background(Color.White)
                 .verticalScroll(scrollState)
+                .padding(horizontal = 24.dp)
         ) {
-            ProfileHeader(
-                username = uiState.username,
-                email = uiState.email,
-                memberSince = uiState.memberSince
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Surface(
+                    modifier = Modifier.size(80.dp),
+                    shape = CircleShape,
+                    color = Color(0xFFC4A484)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Text(
+                            text = uiState.username.firstOrNull()?.uppercase() ?: "A",
+                            color = Color.White,
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = uiState.username,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF212121)
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                val dateFormat = SimpleDateFormat("MMMM yyyy", Locale("es", "ES"))
+                val formattedDate = if (uiState.memberSince > 0) {
+                    "Miembro desde ${dateFormat.format(Date(uiState.memberSince))}"
+                } else {
+                    "Miembro desde enero 2024"
+                }
+
+                Text(
+                    text = formattedDate,
+                    fontSize = 13.sp,
+                    color = Color.Gray
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Editar Perfil",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF212121)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            SectionTitle(title = "Configuración de Cuenta")
+            Divider(color = Color(0xFFE0E0E0), thickness = 1.dp)
 
-            ProfileOption(
-                icon = Icons.Default.Email,
-                title = "Correo Electrónico",
-                subtitle = "Tu email para iniciar sesión",
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Configuración de Cuenta",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF212121)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Correo Electrónico",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.Gray
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Tu email para iniciar sesión",
+                fontSize = 12.sp,
+                color = Color.Gray.copy(alpha = 0.7f)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Email actual",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF424242)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
                 value = uiState.email,
-                onClick = profileViewModel::showEmailDialog
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth(),
+                enabled = false,
+                colors = OutlinedTextFieldDefaults.colors(
+                    disabledBorderColor = Color(0xFFE0E0E0),
+                    disabledTextColor = Color(0xFF424242),
+                    disabledContainerColor = Color(0xFFF5F5F5)
+                ),
+                shape = RoundedCornerShape(8.dp)
             )
 
-            Divider(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                color = Color.LightGray.copy(alpha = 0.3f)
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Nuevo email",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF424242)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = uiState.newEmail,
+                onValueChange = profileViewModel::onNewEmailChange,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("nuevo@email.com", color = Color.Gray) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFFB59A7A),
+                    unfocusedBorderColor = Color(0xFFE0E0E0),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp),
+                trailingIcon = {
+                    Icon(
+                        painter = androidx.compose.ui.res.painterResource(
+                            id = android.R.drawable.ic_menu_edit
+                        ),
+                        contentDescription = "Editar",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             )
 
-            ProfileOption(
-                icon = Icons.Default.Lock,
-                title = "Contraseña",
-                subtitle = "Cambia tu contraseña de acceso",
-                value = "••••••••",
-                onClick = profileViewModel::showPasswordDialog
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Divider(color = Color(0xFFE0E0E0), thickness = 1.dp)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Contraseña",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.Gray
             )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Cambia tu contraseña de acceso",
+                fontSize = 12.sp,
+                color = Color.Gray.copy(alpha = 0.7f)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Button(
-                onClick = {
-                    profileViewModel.logout(onLogout)
+            Text(
+                text = "Contraseña actual",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF424242)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = uiState.currentPassword,
+                onValueChange = profileViewModel::onCurrentPasswordChange,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("••••••••", color = Color.Gray) },
+                visualTransformation = if (uiState.isPasswordVisible) {
+                    VisualTransformation.None
+                } else {
+                    PasswordVisualTransformation()
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFE53935)
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFFB59A7A),
+                    unfocusedBorderColor = Color(0xFFE0E0E0),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp),
+                trailingIcon = {
+                    IconButton(onClick = profileViewModel::onTogglePasswordVisibility) {
+                        Icon(
+                            imageVector = if (uiState.isPasswordVisible) {
+                                Icons.Default.Visibility
+                            } else {
+                                Icons.Default.VisibilityOff
+                            },
+                            contentDescription = "Toggle password visibility",
+                            tint = Color.Gray
+                        )
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Nueva contraseña",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF424242)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = uiState.newPassword,
+                onValueChange = profileViewModel::onNewPasswordChange,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("••••••••", color = Color.Gray) },
+                visualTransformation = if (uiState.isNewPasswordVisible) {
+                    VisualTransformation.None
+                } else {
+                    PasswordVisualTransformation()
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFFB59A7A),
+                    unfocusedBorderColor = Color(0xFFE0E0E0),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp),
+                trailingIcon = {
+                    IconButton(onClick = profileViewModel::onToggleNewPasswordVisibility) {
+                        Icon(
+                            imageVector = if (uiState.isNewPasswordVisible) {
+                                Icons.Default.Visibility
+                            } else {
+                                Icons.Default.VisibilityOff
+                            },
+                            contentDescription = "Toggle password visibility",
+                            tint = Color.Gray
+                        )
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Confirmar nueva contraseña",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF424242)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = uiState.confirmNewPassword,
+                onValueChange = profileViewModel::onConfirmNewPasswordChange,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("••••••••", color = Color.Gray) },
+                visualTransformation = if (uiState.isConfirmPasswordVisible) {
+                    VisualTransformation.None
+                } else {
+                    PasswordVisualTransformation()
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFFB59A7A),
+                    unfocusedBorderColor = Color(0xFFE0E0E0),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp),
+                trailingIcon = {
+                    IconButton(onClick = profileViewModel::onToggleConfirmPasswordVisibility) {
+                        Icon(
+                            imageVector = if (uiState.isConfirmPasswordVisible) {
+                                Icons.Default.Visibility
+                            } else {
+                                Icons.Default.VisibilityOff
+                            },
+                            contentDescription = "Toggle password visibility",
+                            tint = Color.Gray
+                        )
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Requisitos de contraseña:",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF424242)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            PasswordRequirement(
+                text = "Mínimo 8 caracteres",
+                isMet = uiState.newPassword.length >= 8
+            )
+            PasswordRequirement(
+                text = "Al menos una letra mayúscula",
+                isMet = uiState.newPassword.any { it.isUpperCase() }
+            )
+            PasswordRequirement(
+                text = "Al menos un número",
+                isMet = uiState.newPassword.any { it.isDigit() }
+            )
+
+            uiState.errorMessage?.let { error ->
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = error,
+                    color = Color(0xFFD32F2F),
+                    fontSize = 13.sp
                 )
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                    contentDescription = "Cerrar sesión",
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Cerrar Sesión", fontSize = 16.sp)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-        }
-    }
 
-    if (uiState.showEmailDialog) {
-        ChangeEmailDialog(
-            currentEmail = uiState.currentEmail,
-            newEmail = uiState.newEmail,
-            currentPassword = uiState.currentPassword,
-            isPasswordVisible = uiState.isPasswordVisible,
-            isLoading = uiState.isLoading,
-            errorMessage = uiState.errorMessage,
-            onNewEmailChange = profileViewModel::onNewEmailChange,
-            onCurrentPasswordChange = profileViewModel::onCurrentPasswordChange,
-            onTogglePasswordVisibility = profileViewModel::onTogglePasswordVisibility,
-            onConfirm = profileViewModel::onUpdateEmailClicked,
-            onDismiss = profileViewModel::dismissEmailDialog
-        )
-    }
-
-    if (uiState.showPasswordDialog) {
-        ChangePasswordDialog(
-            currentPassword = uiState.currentPassword,
-            newPassword = uiState.newPassword,
-            confirmNewPassword = uiState.confirmNewPassword,
-            isPasswordVisible = uiState.isPasswordVisible,
-            isNewPasswordVisible = uiState.isNewPasswordVisible,
-            isConfirmPasswordVisible = uiState.isConfirmPasswordVisible,
-            isLoading = uiState.isLoading,
-            errorMessage = uiState.errorMessage,
-            onCurrentPasswordChange = profileViewModel::onCurrentPasswordChange,
-            onNewPasswordChange = profileViewModel::onNewPasswordChange,
-            onConfirmNewPasswordChange = profileViewModel::onConfirmNewPasswordChange,
-            onTogglePasswordVisibility = profileViewModel::onTogglePasswordVisibility,
-            onToggleNewPasswordVisibility = profileViewModel::onToggleNewPasswordVisibility,
-            onToggleConfirmPasswordVisibility = profileViewModel::onToggleConfirmPasswordVisibility,
-            onConfirm = profileViewModel::onUpdatePasswordClicked,
-            onDismiss = profileViewModel::dismissPasswordDialog
-        )
-    }
-}
-
-@Composable
-private fun ProfileHeader(
-    username: String,
-    email: String,
-    memberSince: Long
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Surface(
-            modifier = Modifier.size(100.dp),
-            shape = CircleShape,
-            color = Color(0xFFB59A7A)
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+            Button(
+                onClick = profileViewModel::onUpdateEmailClicked,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFB59A7A)
+                ),
+                shape = RoundedCornerShape(8.dp),
+                enabled = !uiState.isLoading && uiState.newEmail.isNotBlank()
             ) {
-                Text(
-                    text = username.firstOrNull()?.uppercase() ?: "U",
-                    color = Color.White,
-                    fontSize = 40.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = username,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF212121)
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = email,
-            fontSize = 14.sp,
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        val dateFormat = SimpleDateFormat("MMMM yyyy", Locale("es", "ES"))
-        val formattedDate = if (memberSince > 0) {
-            "Miembro desde ${dateFormat.format(Date(memberSince))}"
-        } else {
-            "Miembro reciente"
-        }
-
-        Text(
-            text = formattedDate,
-            fontSize = 13.sp,
-            color = Color.Gray,
-            fontWeight = FontWeight.Light
-        )
-    }
-}
-
-@Composable
-private fun SectionTitle(title: String) {
-    Text(
-        text = title,
-        fontSize = 14.sp,
-        fontWeight = FontWeight.SemiBold,
-        color = Color.Gray,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-    )
-}
-
-@Composable
-private fun ProfileOption(
-    icon: ImageVector,
-    title: String,
-    subtitle: String,
-    value: String,
-    onClick: () -> Unit
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White),
-        onClick = onClick,
-        color = Color.White
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                modifier = Modifier.size(48.dp),
-                shape = CircleShape,
-                color = Color(0xFFB59A7A).copy(alpha = 0.1f)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
                     Icon(
-                        imageVector = icon,
-                        contentDescription = title,
-                        tint = Color(0xFFB59A7A),
-                        modifier = Modifier.size(24.dp)
+                        painter = androidx.compose.ui.res.painterResource(
+                            id = android.R.drawable.ic_dialog_email
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Actualizar Email", fontSize = 15.sp)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = profileViewModel::onUpdatePasswordClicked,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFB59A7A)
+                ),
+                shape = RoundedCornerShape(8.dp),
+                enabled = !uiState.isLoading &&
+                        uiState.currentPassword.isNotBlank() &&
+                        uiState.newPassword.isNotBlank() &&
+                        uiState.confirmNewPassword.isNotBlank()
+            ) {
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Icon(
+                        painter = androidx.compose.ui.res.painterResource(
+                            id = android.R.drawable.ic_lock_lock
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Cambiar Contraseña", fontSize = 15.sp)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top
+            ) {
+                Checkbox(
+                    checked = false,
+                    onCheckedChange = null,
+                    enabled = false,
+                    colors = CheckboxDefaults.colors(
+                        disabledCheckedColor = Color.Gray,
+                        disabledUncheckedColor = Color.Gray
+                    )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text(
+                        text = "Seguridad",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFF424242)
+                    )
+                    Text(
+                        text = "Te enviaremos un email de confirmación antes de aplicar cualquier cambio a tu cuenta.",
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        lineHeight = 16.sp
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF212121)
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = subtitle,
-                    fontSize = 13.sp,
-                    color = Color.Gray
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = value,
-                    fontSize = 14.sp,
-                    color = Color(0xFF757575)
-                )
-            }
-
-            Text(
-                text = "Editar",
-                fontSize = 14.sp,
-                color = Color(0xFFB59A7A),
-                fontWeight = FontWeight.Medium
-            )
+            Spacer(modifier = Modifier.height(32.dp))
         }
+    }
+}
+
+@Composable
+private fun PasswordRequirement(
+    text: String,
+    isMet: Boolean
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = isMet,
+            onCheckedChange = null,
+            enabled = false,
+            colors = CheckboxDefaults.colors(
+                disabledCheckedColor = Color(0xFF4CAF50),
+                disabledUncheckedColor = Color.Gray,
+                checkmarkColor = Color.White
+            ),
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = text,
+            fontSize = 12.sp,
+            color = if (isMet) Color(0xFF424242) else Color.Gray
+        )
     }
 }
