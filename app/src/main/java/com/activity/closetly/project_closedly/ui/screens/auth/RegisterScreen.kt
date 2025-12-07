@@ -50,6 +50,7 @@ fun RegisterScreen(
                 .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(24.dp))
 
             TextFieldWithLabel(
                 label = "Nombre de usuario",
@@ -94,7 +95,7 @@ fun RegisterScreen(
                 Checkbox(
                     checked = uiState.acceptedTerms,
                     onCheckedChange = registerViewModel::onTermsChanged,
-                    colors = CheckboxDefaults.colors(checkedColor = Color(0xFFA28460))
+                    colors = CheckboxDefaults.colors(checkedColor = Color(0xFFB59A7A))
                 )
                 Text(
                     text = "Acepto los términos y condiciones y la política de privacidad de Closetly",
@@ -120,7 +121,7 @@ fun RegisterScreen(
                     .fillMaxWidth()
                     .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA28460)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB59A7A)),
                 enabled = !uiState.isLoading
             ) {
                 if (uiState.isLoading) {
@@ -145,7 +146,7 @@ fun RegisterScreen(
 
             Text(
                 "Inicia sesión aquí",
-                color = Color(0xFFA28460),
+                color = Color(0xFFB59A7A),
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
                 modifier = Modifier

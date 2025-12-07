@@ -45,21 +45,6 @@ fun TextFieldWithLabel(
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedBorderColor = if (isError) Color(0xFFD32F2F) else Color.LightGray,
                 focusedBorderColor = if (isError) Color(0xFFD32F2F) else Color(0xFFB59A7A),
-<<<<<<< HEAD
-
-                cursorColor = if (isError) Color(0xFFD32F2F) else Color(0xFFB59A7A),
-
-                disabledBorderColor = Color.LightGray.copy(alpha = 0.5f),
-                disabledTextColor = Color.Gray,
-
-                focusedTextColor = Color(0xFF212121),
-                unfocusedTextColor = Color(0xFF424242),
-
-                errorBorderColor = Color(0xFFD32F2F),
-                errorCursorColor = Color(0xFFD32F2F),
-                errorLabelColor = Color(0xFFD32F2F),
-
-=======
                 cursorColor = if (isError) Color(0xFFD32F2F) else Color(0xFFB59A7A),
                 disabledBorderColor = Color.LightGray.copy(alpha = 0.5f),
                 disabledTextColor = Color.Gray,
@@ -68,7 +53,6 @@ fun TextFieldWithLabel(
                 errorBorderColor = Color(0xFFD32F2F),
                 errorCursorColor = Color(0xFFD32F2F),
                 errorLabelColor = Color(0xFFD32F2F),
->>>>>>> register
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 errorContainerColor = Color.White

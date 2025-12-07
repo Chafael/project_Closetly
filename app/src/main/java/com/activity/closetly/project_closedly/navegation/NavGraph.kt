@@ -8,10 +8,12 @@ import androidx.navigation.compose.rememberNavController
 import com.activity.closetly.project_closedly.ui.login.LoginScreen
 import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
 import com.activity.closetly.project_closedly.ui.screens.home.HomeScreen
+import com.activity.closetly.project_closedly.ui.screens.welcome.WelcomeScreen
 
 object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
+    const val WELCOME = "welcome"
     const val HOME = "home"
 }
 
@@ -37,16 +39,27 @@ fun NavGraph(
             )
         }
 
-
         composable(Routes.REGISTER) {
             RegisterScreen(
                 onNavigateToLogin = {
-                    // Temporal: regresa a register hasta el merge
-                    navController.navigate(Routes.REGISTER)
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.REGISTER) { inclusive = true }
+                    }
                 },
                 onRegisterSuccess = {
-                    navController.navigate(Routes.HOME) {
+                    // Navegar a la pantalla de bienvenida
+                    navController.navigate(Routes.WELCOME) {
                         popUpTo(Routes.REGISTER) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Routes.WELCOME) {
+            WelcomeScreen(
+                onContinue = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.WELCOME) { inclusive = true }
                     }
                 }
             )
