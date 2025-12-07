@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.activity.closetly.project_closedly.ui.login.LoginScreen
 import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
+import com.activity.closetly.project_closedly.ui.screens.upload.UploadGarmentScreen
 import com.activity.closetly.project_closedly.ui.screens.wardrobe.WardrobeScreen
 import com.activity.closetly.project_closedly.ui.screens.welcome.WelcomeScreen
 
@@ -77,23 +78,20 @@ fun NavGraph(
                     navController.navigate(Routes.UPLOAD_GARMENT)
                 },
                 onNavigateToProfile = {
-                    // TODO: Implementar navegación a perfil
+                    // TODO: Implementar perfil
                 }
             )
         }
 
         composable(Routes.UPLOAD_GARMENT) {
-            // TODO: Implementar en feature/upload-garment
-            // Placeholder temporal
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Pantalla de Subir Prenda",
-                    fontSize = 20.sp
-                )
-            }
+            UploadGarmentScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onUploadSuccess = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

@@ -100,6 +100,12 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 
+    // Cloudinary para subir imágenes
+    implementation("com.cloudinary:cloudinary-android:2.8.0")
+
+    // OkHttp para las peticiones HTTP
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
     // Debug
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
