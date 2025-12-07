@@ -14,6 +14,7 @@ class AuthRepository @Inject constructor(
     private val firebaseAuthService: FirebaseAuthService,
     private val userDao: UserDao
 ) {
+
     val currentUser: FirebaseUser?
         get() = firebaseAuthService.currentUser
 
@@ -28,6 +29,7 @@ class AuthRepository @Inject constructor(
         if (result is AuthResult.Success) {
             val user = result.data
             val localUser = userDao.getUserById(user.uid)
+
             if (localUser != null) {
                 userDao.updateLastLogin(user.uid)
             } else {
@@ -67,9 +69,31 @@ class AuthRepository @Inject constructor(
         return firebaseAuthService.sendPasswordResetEmail(email)
     }
 
+    suspend fun updateEmail(currentPassword: String, newEmail: String): AuthResult<Unit> {
+        val result = firebaseAuthService.updateUserEmail(currentPassword, newEmail)
+
+        if (result is AuthResult.Success) {
+            currentUser?.uid?.let { userId ->
+                val localUser = userDao.getUserById(userId)
+                localUser?.let {
+                    userDao.updateUser(it.copy(email = newEmail))
+                }
+            }
+        }
+        return result
+    }
+
+    suspend fun updatePassword(currentPassword: String, newPassword: String): AuthResult<Unit> {
+        return firebaseAuthService.updateUserPassword(currentPassword, newPassword)
+    }
+
+    suspend fun getUserData(userId: String): AuthResult<Map<String, Any>> {
+        return firebaseAuthService.getUserData(userId)
+    }
+
     suspend fun logout() {
         firebaseAuthService.signOut()
-        userDao.deleteAllUsers() // Limpia datos locales al cerrar sesión
+        userDao.deleteAllUsers()
     }
 
     fun getLocalUser(userId: String): Flow<UserEntity?> {
