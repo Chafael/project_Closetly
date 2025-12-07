@@ -1,18 +1,13 @@
 package com.activity.closetly.project_closedly.navegation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.activity.closetly.project_closedly.ui.login.LoginScreen
 import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
+import com.activity.closetly.project_closedly.ui.screens.success.GarmentSuccessScreen
 import com.activity.closetly.project_closedly.ui.screens.upload.UploadGarmentScreen
 import com.activity.closetly.project_closedly.ui.screens.wardrobe.WardrobeScreen
 import com.activity.closetly.project_closedly.ui.screens.welcome.WelcomeScreen
@@ -23,6 +18,7 @@ object Routes {
     const val WELCOME = "welcome"
     const val WARDROBE = "wardrobe"
     const val UPLOAD_GARMENT = "upload_garment"
+    const val GARMENT_SUCCESS = "garment_success"
 }
 
 @Composable
@@ -89,7 +85,19 @@ fun NavGraph(
                     navController.popBackStack()
                 },
                 onUploadSuccess = {
-                    navController.popBackStack()
+                    navController.navigate(Routes.GARMENT_SUCCESS) {
+                        popUpTo(Routes.UPLOAD_GARMENT) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Routes.GARMENT_SUCCESS) {
+            GarmentSuccessScreen(
+                onNavigateToWardrobe = {
+                    navController.navigate(Routes.WARDROBE) {
+                        popUpTo(Routes.GARMENT_SUCCESS) { inclusive = true }
+                    }
                 }
             )
         }
