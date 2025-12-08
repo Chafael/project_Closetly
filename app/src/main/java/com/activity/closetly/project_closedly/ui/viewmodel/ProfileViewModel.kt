@@ -184,7 +184,7 @@ class ProfileViewModel @Inject constructor(
     fun clearSuccessMessage() { uiState = uiState.copy(successMessage = null) }
     fun clearErrorMessage() { uiState = uiState.copy(errorMessage = null) }
 
-    fun logout(onSuccess: () -> Unit) {
+    fun logout() {
         viewModelScope.launch {
             _selectedImageUri.value?.let { uri ->
                 try {
@@ -198,7 +198,6 @@ class ProfileViewModel @Inject constructor(
             preferencesManager.clearProfileImageUri()
             _selectedImageUri.value = null
             authRepository.logout()
-            onSuccess()
         }
     }
 }
