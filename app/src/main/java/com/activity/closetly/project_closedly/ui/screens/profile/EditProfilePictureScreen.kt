@@ -6,7 +6,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -29,11 +28,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.activity.closetly.project_closedly.R
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
 import com.activity.closetly.project_closedly.utils.ComposeFileProvider
 
@@ -76,9 +76,7 @@ fun EditProfilePictureScreen(
     }
 
     val selectedImageUri by profileViewModel.selectedImageUri.collectAsState()
-    val painter = rememberAsyncImagePainter(
-        model = selectedImageUri ?: "https://via.placeholder.com/150"
-    )
+    val initial = profileViewModel.getInitial()
 
     val darkBrownColor = Color(0xFF6D5D52)
     val lightGrayColor = Color(0xFF757575)
@@ -121,33 +119,29 @@ fun EditProfilePictureScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFD7C4B8)),
                 contentAlignment = Alignment.Center
             ) {
                 if (selectedImageUri != null) {
                     Image(
-                        painter = painter,
+                        painter = rememberAsyncImagePainter(
+                            model = selectedImageUri,
+                            error = painterResource(id = R.drawable.ic_launcher_foreground)
+                        ),
                         contentDescription = "Foto de perfil",
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFD7C4B8)),
+                        modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    Box(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFD7C4B8)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "A",
-                            color = Color.White,
-                            fontSize = 48.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = initial,
+                        color = Color.White,
+                        fontSize = 48.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
