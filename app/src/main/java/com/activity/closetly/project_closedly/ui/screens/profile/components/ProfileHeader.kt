@@ -3,7 +3,12 @@ package com.activity.closetly.project_closedly.ui.screens.profile.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -18,13 +23,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun ProfileHeader(
     username: String,
     memberSince: Long,
-    onEditClick: () -> Unit // Nuevo parámetro para la navegación
+    onEditClick: () -> Unit
 ) {
     val formattedDate = if (memberSince > 0) {
         val date = Date(memberSince)
@@ -40,9 +46,8 @@ fun ProfileHeader(
     ) {
         Box(
             contentAlignment = Alignment.BottomEnd,
-            modifier = Modifier.clickable(onClick = onEditClick) // Hacemos el Box clicable
+            modifier = Modifier.clickable(onClick = onEditClick)
         ) {
-            // Círculo principal con la inicial
             Box(
                 modifier = Modifier
                     .size(80.dp)
@@ -57,13 +62,12 @@ fun ProfileHeader(
                     fontWeight = FontWeight.Bold
                 )
             }
-            // Círculo pequeño para el icono de lápiz
             Box(
                 modifier = Modifier
                     .size(28.dp)
                     .clip(CircleShape)
                     .background(Color.White)
-                    .border(2.dp, Color.White, CircleShape), // Borde blanco para separar
+                    .border(2.dp, Color.White, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
