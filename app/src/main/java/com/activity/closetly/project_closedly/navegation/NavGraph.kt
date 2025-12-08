@@ -34,10 +34,8 @@ fun NavGraph(
     navController: NavHostController = rememberNavController(),
     startDestination: String = Routes.LOGIN
 ) {
-    Log.d(TAG, "════════════════════════════════════════")
     Log.d(TAG, "NavGraph inicializado")
     Log.d(TAG, "Start destination: $startDestination")
-    Log.d(TAG, "════════════════════════════════════════")
 
     NavHost(
         navController = navController,
@@ -102,17 +100,7 @@ fun NavGraph(
                 },
                 onNavigateToProfile = {
                     Log.d(TAG, "CLICK EN AVATAR - Navegando a Profile desde Wardrobe")
-                    Log.d(TAG, "Current destination: ${navController.currentDestination?.route}")
-
-                    // Línea problemática eliminada
-                    // Log.d(TAG, "Back stack size: ${navController.backQueue.size}")
-
-                    try {
-                        navController.navigate(Routes.PROFILE)
-                        Log.d(TAG, "Navegación a Profile ejecutada exitosamente")
-                    } catch (e: Exception) {
-                        Log.e(TAG, "ERROR al navegar a Profile: ${e.message}", e)
-                    }
+                    navController.navigate(Routes.PROFILE)
                 }
             )
         }
@@ -133,8 +121,6 @@ fun NavGraph(
 
         composable(Routes.PROFILE) {
             Log.d(TAG, "Mostrando ProfileScreen")
-            // Línea problemática eliminada
-            // Log.d(TAG, "Back stack al entrar a Profile: ${navController.backQueue.map { it.destination.route }}")
 
             ProfileScreen(
                 onNavigateBack = {
