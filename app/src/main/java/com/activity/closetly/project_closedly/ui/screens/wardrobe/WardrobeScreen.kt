@@ -1,5 +1,6 @@
 package com.activity.closetly.project_closedly.ui.screens.wardrobe
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,15 +24,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.activity.closetly.project_closedly.R
 import com.activity.closetly.project_closedly.data.local.entity.GarmentEntity
+import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
 import com.activity.closetly.project_closedly.ui.viewmodel.WardrobeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WardrobeScreen(
     wardrobeViewModel: WardrobeViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel = hiltViewModel(),
     onNavigateToUpload: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {}
 ) {
@@ -44,7 +47,8 @@ fun WardrobeScreen(
             WardrobeTopBar(
                 garmentCount = garmentCount,
                 onSearchClick = { },
-                onProfileClick = onNavigateToProfile
+                onProfileClick = onNavigateToProfile,
+                profileViewModel = profileViewModel
             )
         },
         floatingActionButton = {
@@ -89,8 +93,14 @@ fun WardrobeScreen(
 private fun WardrobeTopBar(
     garmentCount: Int,
     onSearchClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    profileViewModel: ProfileViewModel
 ) {
+    val selectedImageUri by profileViewModel.selectedImageUri.collectAsState()
+    val profileImagePainter = rememberAsyncImagePainter(
+        model = selectedImageUri ?: "https://via.placeholder.com/150"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -128,25 +138,36 @@ private fun WardrobeTopBar(
                     )
                 }
 
-                IconButton(
-                    onClick = onProfileClick,
-                    modifier = Modifier.size(48.dp)
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .clickable { onProfileClick() }
                 ) {
-                    Surface(
-                        modifier = Modifier.size(40.dp),
-                        shape = CircleShape,
-                        color = Color(0xFFB59A7A)
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxSize()
+                    if (selectedImageUri != null) {
+                        Image(
+                            painter = profileImagePainter,
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            shape = CircleShape,
+                            color = Color(0xFFB59A7A)
                         ) {
-                            Text(
-                                text = "A",
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
-                            )
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                Text(
+                                    text = "A",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
+                                )
+                            }
                         }
                     }
                 }
