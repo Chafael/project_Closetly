@@ -1,9 +1,11 @@
 package com.activity.closetly.project_closedly.ui.screens.home
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,7 +23,8 @@ import com.activity.closetly.project_closedly.ui.viewmodel.HomeViewModel
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    onNavigateToProfile: () -> Unit = {}
 ) {
     val userEmail by homeViewModel.userEmail.collectAsState()
 
@@ -39,6 +42,13 @@ fun HomeScreen(
                     containerColor = Color(0xFFB59A7A)
                 ),
                 actions = {
+                    IconButton(onClick = onNavigateToProfile) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Perfil",
+                            tint = Color.White
+                        )
+                    }
                     IconButton(onClick = {
                         homeViewModel.logout()
                         onLogout()
