@@ -142,7 +142,7 @@ private fun WardrobeTopBar(
                         .clickable { onProfileClick() },
                     contentAlignment = Alignment.Center
                 ) {
-                    key(selectedImageUri) {
+                    key(selectedImageUri?.toString()) {
                         if (selectedImageUri != null) {
                             AsyncImage(
                                 model = selectedImageUri,

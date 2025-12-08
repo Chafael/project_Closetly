@@ -54,7 +54,8 @@ fun NavGraph(
         }
         composable(Routes.WARDROBE) {
             val wardrobeViewModel: WardrobeViewModel = hiltViewModel()
-            val profileViewModel: ProfileViewModel = hiltViewModel()
+            val parentEntry = navController.getBackStackEntry(Routes.WARDROBE)
+            val profileViewModel: ProfileViewModel = hiltViewModel(parentEntry)
             WardrobeScreen(
                 wardrobeViewModel = wardrobeViewModel,
                 profileViewModel = profileViewModel,
@@ -65,7 +66,8 @@ fun NavGraph(
             )
         }
         composable(Routes.PROFILE) {
-            val profileViewModel: ProfileViewModel = hiltViewModel()
+            val parentEntry = navController.getBackStackEntry(Routes.WARDROBE)
+            val profileViewModel: ProfileViewModel = hiltViewModel(parentEntry)
             ProfileScreen(
                 profileViewModel = profileViewModel,
                 onNavigateBack = {
@@ -82,7 +84,8 @@ fun NavGraph(
             )
         }
         composable(Routes.EDIT_PROFILE_PICTURE) {
-            val profileViewModel: ProfileViewModel = hiltViewModel()
+            val parentEntry = navController.getBackStackEntry(Routes.WARDROBE)
+            val profileViewModel: ProfileViewModel = hiltViewModel(parentEntry)
             EditProfilePictureScreen(
                 profileViewModel = profileViewModel,
                 onNavigateBack = {

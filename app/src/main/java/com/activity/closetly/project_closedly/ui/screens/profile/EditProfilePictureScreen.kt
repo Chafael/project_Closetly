@@ -124,23 +124,22 @@ fun EditProfilePictureScreen(
                     .background(Color(0xFFD7C4B8)),
                 contentAlignment = Alignment.Center
             ) {
-                key(selectedImageUri?.toString()) {
-                    if (selectedImageUri != null) {
-                        AsyncImage(
-                            model = selectedImageUri,
-                            contentDescription = "Foto de perfil",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop,
-                            error = painterResource(id = R.drawable.ic_launcher_foreground)
-                        )
-                    } else {
-                        Text(
-                            text = initial,
-                            color = Color.White,
-                            fontSize = 48.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                if (selectedImageUri != null) {
+                    AsyncImage(
+                        key = selectedImageUri,
+                        model = selectedImageUri,
+                        contentDescription = "Foto de perfil",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        error = painterResource(id = R.drawable.ic_launcher_foreground)
+                    )
+                } else {
+                    Text(
+                        text = initial,
+                        color = Color.White,
+                        fontSize = 48.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 

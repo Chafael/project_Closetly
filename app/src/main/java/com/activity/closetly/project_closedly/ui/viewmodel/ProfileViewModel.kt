@@ -1,5 +1,6 @@
 package com.activity.closetly.project_closedly.ui.viewmodel
 
+import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,6 +11,7 @@ import com.activity.closetly.project_closedly.data.remote.AuthResult
 import com.activity.closetly.project_closedly.data.repository.AuthRepository
 import com.activity.closetly.project_closedly.utils.PreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -18,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     var uiState by mutableStateOf(ProfileUiState())
@@ -51,11 +54,22 @@ class ProfileViewModel @Inject constructor(
     private fun loadProfileImage() {
         val savedUri = preferencesManager.getProfileImageUri()
         if (savedUri != null) {
-            _selectedImageUri.value = Uri.parse(savedUri)
+            try {
+                _selectedImageUri.value = Uri.parse(savedUri)
+            } catch (e: Exception) {
+                preferencesManager.clearProfileImageUri()
+                _selectedImageUri.value = null
+            }
         }
     }
 
     fun onImageSelected(uri: Uri) {
+        try {
+            val flags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+            context.contentResolver.takePersistableUriPermission(uri, flags)
+        } catch (e: Exception) {
+        }
+
         _selectedImageUri.value = uri
         preferencesManager.saveProfileImageUri(uri.toString())
     }
@@ -122,7 +136,17 @@ class ProfileViewModel @Inject constructor(
 
     fun logout(onSuccess: () -> Unit) {
         viewModelScope.launch {
+            _selectedImageUri.value?.let { uri ->
+                try {
+                    context.contentResolver.releasePersistableUriPermission(
+                        uri,
+                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (e: Exception) {
+                }
+            }
             preferencesManager.clearProfileImageUri()
+            _selectedImageUri.value = null
             authRepository.logout()
             onSuccess()
         }

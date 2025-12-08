@@ -59,23 +59,22 @@ fun ProfileHeader(
                     .background(Color(0xFFB59A7A)),
                 contentAlignment = Alignment.Center
             ) {
-                key(profileImageUri?.toString()) {
-                    if (profileImageUri != null) {
-                        AsyncImage(
-                            model = profileImageUri,
-                            contentDescription = "Foto de perfil",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop,
-                            error = painterResource(id = R.drawable.ic_launcher_foreground)
-                        )
-                    } else {
-                        Text(
-                            text = initial,
-                            color = Color.White,
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                if (profileImageUri != null) {
+                    AsyncImage(
+                        key = profileImageUri,
+                        model = profileImageUri,
+                        contentDescription = "Foto de perfil",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        error = painterResource(id = R.drawable.ic_launcher_foreground)
+                    )
+                } else {
+                    Text(
+                        text = initial,
+                        color = Color.White,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
             Box(
