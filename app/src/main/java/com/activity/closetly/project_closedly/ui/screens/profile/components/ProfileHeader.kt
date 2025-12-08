@@ -1,14 +1,11 @@
 package com.activity.closetly.project_closedly.ui.screens.profile.components
 
+import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -19,17 +16,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 @Composable
 fun ProfileHeader(
     username: String,
     memberSince: Long,
+    profileImageUri: Uri?,
     onEditClick: () -> Unit
 ) {
     val formattedDate = if (memberSince > 0) {
@@ -40,6 +39,10 @@ fun ProfileHeader(
         "Cargando fecha..."
     }
 
+    val painter = rememberAsyncImagePainter(
+        model = profileImageUri ?: "https://via.placeholder.com/150"
+    )
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -48,19 +51,31 @@ fun ProfileHeader(
             contentAlignment = Alignment.BottomEnd,
             modifier = Modifier.clickable(onClick = onEditClick)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFB59A7A)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = username.firstOrNull()?.uppercase() ?: "U",
-                    color = Color.White,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
+            if (profileImageUri != null) {
+                Image(
+                    painter = painter,
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFB59A7A)),
+                    contentScale = ContentScale.Crop
                 )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFB59A7A)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = username.firstOrNull()?.uppercase() ?: "U",
+                        color = Color.White,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
             Box(
                 modifier = Modifier
