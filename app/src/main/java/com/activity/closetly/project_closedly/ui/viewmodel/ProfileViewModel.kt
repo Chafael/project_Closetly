@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.activity.closetly.project_closedly.data.remote.AuthResult
 import com.activity.closetly.project_closedly.data.repository.AuthRepository
+import com.activity.closetly.project_closedly.utils.PreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
     var uiState by mutableStateOf(ProfileUiState())
@@ -27,6 +29,7 @@ class ProfileViewModel @Inject constructor(
 
     init {
         loadUserData()
+        loadProfileImage()
     }
 
     private fun loadUserData() {
@@ -45,8 +48,16 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    private fun loadProfileImage() {
+        val savedUri = preferencesManager.getProfileImageUri()
+        if (savedUri != null) {
+            _selectedImageUri.value = Uri.parse(savedUri)
+        }
+    }
+
     fun onImageSelected(uri: Uri) {
         _selectedImageUri.value = uri
+        preferencesManager.saveProfileImageUri(uri.toString())
     }
 
     fun onUpdateEmailClicked() {
@@ -106,6 +117,7 @@ class ProfileViewModel @Inject constructor(
 
     fun logout(onSuccess: () -> Unit) {
         viewModelScope.launch {
+            preferencesManager.clearProfileImageUri()
             authRepository.logout()
             onSuccess()
         }
