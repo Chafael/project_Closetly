@@ -1,6 +1,11 @@
-package com.activity.closetly.project_closedly.navigation
+package com.activity.closetly.project_closedly.navegation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -26,7 +31,7 @@ fun NavGraph(
             LoginScreen(
                 loginViewModel = loginViewModel,
                 onLoginSuccess = {
-                    navController.navigate(Routes.PROFILE) {
+                    navController.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 },
@@ -35,12 +40,17 @@ fun NavGraph(
                 }
             )
         }
+
+        composable(Routes.HOME) {
+            TuPantallaDeArmario()
+        }
+
         composable(Routes.REGISTER) {
             val registerViewModel: RegisterViewModelNew = hiltViewModel()
             RegisterScreen(
                 registerViewModel = registerViewModel,
                 onRegisterSuccess = {
-                    navController.navigate(Routes.PROFILE) {
+                    navController.navigate(Routes.HOME) {
                         popUpTo(Routes.REGISTER) { inclusive = true }
                     }
                 },
@@ -54,7 +64,7 @@ fun NavGraph(
             ProfileScreen(
                 profileViewModel = profileViewModel,
                 onNavigateBack = {
-                    navController.navigate(Routes.LOGIN) {
+                    navController.navigate(Routes.HOME) {
                         popUpTo(Routes.PROFILE) { inclusive = true }
                     }
                 },
@@ -83,6 +93,17 @@ fun NavGraph(
 object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
+    const val HOME = "home"
     const val PROFILE = "profile"
     const val EDIT_PROFILE_PICTURE = "edit_profile_picture"
+}
+
+@Composable
+fun TuPantallaDeArmario() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "AQUÍ VA LA VISTA DE TU ARMARIO")
+    }
 }
