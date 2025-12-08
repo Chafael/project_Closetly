@@ -1,4 +1,4 @@
-package com.activity.closetly.project_closedly.ui.screens.profile.componentsimport
+package com.activity.closetly.project_closedly.ui.screens.profile.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -26,9 +26,13 @@ fun ProfileHeader(
     memberSince: Long
 ) {
     val formattedDate = if (memberSince > 0) {
-        val date = Date(memberSince)
-        val format = SimpleDateFormat("MMMM yyyy", Locale("es", "ES"))
-        "Miembro desde ${format.format(date)}"
+        try {
+            val date = Date(memberSince)
+            val format = SimpleDateFormat("MMMM yyyy", Locale("es", "ES"))
+            "Miembro desde ${format.format(date)}"
+        } catch (e: Exception) {
+            "Fecha no disponible"
+        }
     } else {
         "Cargando fecha..."
     }
