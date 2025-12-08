@@ -90,13 +90,15 @@ class FirebaseAuthService @Inject constructor(
     ): AuthResult<Unit> {
         return try {
             val user = currentUser ?: return AuthResult.Error("No hay usuario autenticado")
-            val email = user.email ?: return AuthResult.Error("Email actual no disponible")
+            val currentEmail = user.email ?: return AuthResult.Error("Email actual no disponible")
 
-            val credential = EmailAuthProvider.getCredential(email, currentPassword)
+            val credential = EmailAuthProvider.getCredential(currentEmail, currentPassword)
             user.reauthenticate(credential).await()
 
+            // Actualización inmediata en Firebase Auth
             user.updateEmail(newEmail).await()
 
+            // Actualización inmediata en Firestore
             firestore.collection("users")
                 .document(user.uid)
                 .update("email", newEmail)
