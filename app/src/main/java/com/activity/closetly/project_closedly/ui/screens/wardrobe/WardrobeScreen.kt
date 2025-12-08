@@ -97,7 +97,7 @@ private fun WardrobeTopBar(
     profileViewModel: ProfileViewModel
 ) {
     val selectedImageUri by profileViewModel.selectedImageUri.collectAsState()
-    val uiState = profileViewModel.uiState
+    val initial = profileViewModel.getInitial()
 
     Column(
         modifier = Modifier
@@ -146,14 +146,17 @@ private fun WardrobeTopBar(
                 ) {
                     if (selectedImageUri != null) {
                         Image(
-                            painter = rememberAsyncImagePainter(model = selectedImageUri),
+                            painter = rememberAsyncImagePainter(
+                                model = selectedImageUri,
+                                error = painterResource(id = R.drawable.ic_launcher_foreground)
+                            ),
                             contentDescription = "Foto de perfil",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
                     } else {
                         Text(
-                            text = uiState.username.firstOrNull()?.uppercase() ?: "A",
+                            text = initial,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
