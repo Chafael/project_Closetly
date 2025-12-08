@@ -29,10 +29,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
-    val startDestination = if (Firebase.auth.currentUser != null) Routes.HOME else Routes.LOGIN
+    val startDestination = if (Firebase.auth.currentUser != null) Routes.WARDROBE else Routes.LOGIN
     NavGraph(
         navController = navController,
         startDestination = startDestination
     )
 }
-
