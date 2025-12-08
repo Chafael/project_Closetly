@@ -118,11 +118,9 @@ class ProfileViewModel @Inject constructor(
                 is AuthResult.Success -> {
                     uiState = uiState.copy(
                         isLoading = false,
-                        email = uiState.newEmail,
-                        currentEmail = uiState.newEmail,
                         newEmail = "",
                         currentPassword = "",
-                        successMessage = "✓ Email actualizado exitosamente"
+                        successMessage = "Hemos enviado un correo de verificación a ${uiState.newEmail}. Por favor verifica tu email para completar el cambio."
                     )
                 }
                 is AuthResult.Error -> {
@@ -221,7 +219,7 @@ class ProfileViewModel @Inject constructor(
                         currentPassword = "",
                         newPassword = "",
                         confirmNewPassword = "",
-                        successMessage = "✓ Contraseña actualizada exitosamente"
+                        successMessage = "Contraseña actualizada exitosamente"
                     )
                 }
                 is AuthResult.Error -> {
