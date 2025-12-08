@@ -1,7 +1,6 @@
 package com.activity.closetly.project_closedly.ui.screens.profile.components
 
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,6 +11,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,7 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import com.activity.closetly.project_closedly.R
 import java.text.SimpleDateFormat
 import java.util.*
@@ -59,7 +59,7 @@ fun ProfileHeader(
                     .background(Color(0xFFB59A7A)),
                 contentAlignment = Alignment.Center
             ) {
-                key(profileImageUri) {
+                key(profileImageUri?.toString()) {
                     if (profileImageUri != null) {
                         AsyncImage(
                             model = profileImageUri,
