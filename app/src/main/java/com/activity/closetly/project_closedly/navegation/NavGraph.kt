@@ -5,15 +5,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.activity.closetly.project_closedly.ui.screens.home.HomeScreen
 import com.activity.closetly.project_closedly.ui.login.LoginScreen
 import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.EditProfilePictureScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.ProfileScreen
-import com.activity.closetly.project_closedly.ui.screens.wardrobe.WardrobeScreen
-import com.activity.closetly.project_closedly.ui.viewmodel.LoginViewModel
+import com.activity.closetly.project_closedly.ui.viewmodel.AuthStateViewModel
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
-import com.activity.closetly.project_closedly.ui.viewmodel.RegisterViewModelNew
-import com.activity.closetly.project_closedly.ui.viewmodel.WardrobeViewModel
 
 @Composable
 fun NavGraph(
@@ -25,11 +23,11 @@ fun NavGraph(
         startDestination = startDestination
     ) {
         composable(Routes.LOGIN) {
-            val loginViewModel: LoginViewModel = hiltViewModel()
+            val authViewModel: AuthStateViewModel = hiltViewModel()
             LoginScreen(
-                loginViewModel = loginViewModel,
+                authViewModel = authViewModel,
                 onLoginSuccess = {
-                    navController.navigate(Routes.WARDROBE) {
+                    navController.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 },
@@ -39,25 +37,21 @@ fun NavGraph(
             )
         }
         composable(Routes.REGISTER) {
-            val registerViewModel: RegisterViewModelNew = hiltViewModel()
+            val authViewModel: AuthStateViewModel = hiltViewModel()
             RegisterScreen(
-                registerViewModel = registerViewModel,
+                authViewModel = authViewModel,
                 onRegisterSuccess = {
-                    navController.navigate(Routes.WARDROBE) {
+                    navController.navigate(Routes.HOME) {
                         popUpTo(Routes.REGISTER) { inclusive = true }
                     }
                 },
-                onNavigateToLogin = {
+                onNavigateBack = {
                     navController.popBackStack()
                 }
             )
         }
-        composable(Routes.WARDROBE) {
-            val wardrobeViewModel: WardrobeViewModel = hiltViewModel()
-            WardrobeScreen(
-                wardrobeViewModel = wardrobeViewModel,
-                onNavigateToUpload = {
-                },
+        composable(Routes.HOME) {
+            HomeScreen(
                 onNavigateToProfile = {
                     navController.navigate(Routes.PROFILE)
                 }
@@ -95,7 +89,7 @@ fun NavGraph(
 object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
-    const val WARDROBE = "wardrobe"
+    const val HOME = "home"
     const val PROFILE = "profile"
     const val EDIT_PROFILE_PICTURE = "edit_profile_picture"
 }
