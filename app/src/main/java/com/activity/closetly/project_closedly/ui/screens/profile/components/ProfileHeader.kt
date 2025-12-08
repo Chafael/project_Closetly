@@ -1,38 +1,35 @@
 package com.activity.closetly.project_closedly.ui.screens.profile.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 @Composable
 fun ProfileHeader(
     username: String,
-    memberSince: Long
+    memberSince: Long,
+    onEditClick: () -> Unit // Nuevo parámetro para la navegación
 ) {
     val formattedDate = if (memberSince > 0) {
-        try {
-            val date = Date(memberSince)
-            val format = SimpleDateFormat("MMMM yyyy", Locale("es", "ES"))
-            "Miembro desde ${format.format(date)}"
-        } catch (e: Exception) {
-            "Fecha no disponible"
-        }
+        val date = Date(memberSince)
+        val format = SimpleDateFormat("MMMM yyyy", Locale("es", "ES"))
+        "Miembro desde ${format.format(date)}"
     } else {
         "Cargando fecha..."
     }
@@ -42,18 +39,42 @@ fun ProfileHeader(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
-            modifier = Modifier
-                .size(80.dp)
-                .background(Color(0xFFB59A7A), CircleShape),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.BottomEnd,
+            modifier = Modifier.clickable(onClick = onEditClick) // Hacemos el Box clicable
         ) {
-            Text(
-                text = username.firstOrNull()?.uppercase() ?: "U",
-                color = Color.White,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold
-            )
+            // Círculo principal con la inicial
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFB59A7A)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = username.firstOrNull()?.uppercase() ?: "U",
+                    color = Color.White,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            // Círculo pequeño para el icono de lápiz
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .border(2.dp, Color.White, CircleShape), // Borde blanco para separar
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Editar foto",
+                    tint = Color(0xFFB59A7A),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
         }
+
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = username,
