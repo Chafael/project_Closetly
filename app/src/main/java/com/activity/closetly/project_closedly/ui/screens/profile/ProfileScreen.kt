@@ -27,7 +27,8 @@ import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
 fun ProfileScreen(
     profileViewModel: ProfileViewModel,
     onNavigateBack: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onNavigateToEditPicture: () -> Unit
 ) {
     val uiState = profileViewModel.uiState
     val scrollState = rememberScrollState()
@@ -77,14 +78,17 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ProfileHeader(username = uiState.username, memberSince = uiState.memberSince)
+                ProfileHeader(
+                    username = uiState.username,
+                    memberSince = uiState.memberSince,
+                    onEditClick = onNavigateToEditPicture
+                )
                 Text("Editar Perfil", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 16.dp))
                 Text("Configuración de Cuenta", fontSize = 16.sp, color = Color(0xFFB59A7A), fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // --- SECCIÓN CORREO ELECTRÓNICO ---
             Text("Correo Electrónico", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Text("Tu email para iniciar sesión", fontSize = 14.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(12.dp))
@@ -116,7 +120,6 @@ fun ProfileScreen(
             Divider()
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- SECCIÓN CONTRASEÑA ---
             Text("Contraseña", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Text("Cambia tu contraseña de acceso", fontSize = 14.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(12.dp))
@@ -149,7 +152,6 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- FOOTER ---
             SecurityInfo()
             Spacer(modifier = Modifier.height(24.dp))
             Button(
@@ -172,6 +174,7 @@ private fun PasswordRequirements(password: String) {
     val hasMinChars = password.length >= 8
     val hasUppercase = password.any { it.isUpperCase() }
     val hasNumber = password.any { it.isDigit() }
+
     Column {
         Text("Requisitos de contraseña:", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
         Spacer(modifier = Modifier.height(8.dp))
