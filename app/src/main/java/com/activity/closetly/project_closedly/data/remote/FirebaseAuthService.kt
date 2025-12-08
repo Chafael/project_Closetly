@@ -95,11 +95,6 @@ class FirebaseAuthService @Inject constructor(
             val credential = EmailAuthProvider.getCredential(email, currentPassword)
             user.reauthenticate(credential).await()
 
-            firestore.collection("users")
-                .document(user.uid)
-                .update("email", newEmail)
-                .await()
-
             user.verifyBeforeUpdateEmail(newEmail).await()
 
             AuthResult.Success(Unit)
@@ -108,7 +103,7 @@ class FirebaseAuthService @Inject constructor(
                 e.message?.contains("password is invalid", ignoreCase = true) == true ->
                     "La contraseña actual es incorrecta"
                 e.message?.contains("email-already-in-use", ignoreCase = true) == true ->
-                    "Este email ya está en uso"
+                    "Este email ya está en uso por otra cuenta"
                 e.message?.contains("invalid-email", ignoreCase = true) == true ->
                     "El formato del email es inválido"
                 e.message?.contains("network", ignoreCase = true) == true ->
