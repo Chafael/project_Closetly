@@ -40,6 +40,13 @@ fun ProfileScreen(
         }
     }
 
+    LaunchedEffect(key1 = uiState.errorMessage) {
+        if (uiState.errorMessage != null) {
+            snackbarHostState.showSnackbar(uiState.errorMessage)
+            profileViewModel.clearErrorMessage()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -76,6 +83,8 @@ fun ProfileScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
+            // --- SECCIÓN CORREO ELECTRÓNICO ---
             Text("Correo Electrónico", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Text("Tu email para iniciar sesión", fontSize = 14.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(12.dp))
@@ -83,33 +92,13 @@ fun ProfileScreen(
             TextFieldWithLabel(label = "Email actual", value = uiState.email, onValueChange = {}, enabled = false, isEditable = true)
             Spacer(modifier = Modifier.height(16.dp))
             TextFieldWithLabel(label = "Nuevo email", value = uiState.newEmail, onValueChange = profileViewModel::onNewEmailChange, placeholder = "nuevo@email.com", keyboardType = KeyboardType.Email)
+            Spacer(modifier = Modifier.height(16.dp))
+            TextFieldWithLabel(label = "Contraseña actual para confirmar", value = uiState.emailAuthPassword, onValueChange = profileViewModel::onEmailAuthPasswordChange, isPassword = true, passwordVisible = uiState.isPasswordVisible, onPasswordToggle = profileViewModel::onTogglePasswordVisibility)
 
             Spacer(modifier = Modifier.height(24.dp))
-            Divider()
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text("Contraseña", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text("Cambia tu contraseña de acceso", fontSize = 14.sp, color = Color.Gray)
-            Spacer(modifier = Modifier.height(12.dp))
-
-            TextFieldWithLabel(label = "Contraseña actual", value = uiState.currentPassword, onValueChange = profileViewModel::onCurrentPasswordChange, isPassword = true, passwordVisible = uiState.isPasswordVisible, onPasswordToggle = profileViewModel::onTogglePasswordVisibility)
-            Spacer(modifier = Modifier.height(16.dp))
-            TextFieldWithLabel(label = "Nueva contraseña", value = uiState.newPassword, onValueChange = profileViewModel::onNewPasswordChange, isPassword = true, passwordVisible = uiState.isNewPasswordVisible, onPasswordToggle = profileViewModel::onToggleNewPasswordVisibility)
-            Spacer(modifier = Modifier.height(16.dp))
-            TextFieldWithLabel(label = "Confirmar nueva contraseña", value = uiState.confirmNewPassword, onValueChange = profileViewModel::onConfirmNewPasswordChange, isPassword = true, passwordVisible = uiState.isConfirmPasswordVisible, onPasswordToggle = profileViewModel::onToggleConfirmPasswordVisibility)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            PasswordRequirements(password = uiState.newPassword)
-
-            uiState.errorMessage?.let { error ->
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = error, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-
             Button(
                 onClick = profileViewModel::onUpdateEmailClicked,
-                enabled = uiState.newEmail.isNotBlank() && uiState.currentPassword.isNotBlank() && !uiState.isUpdatingEmail && !uiState.isUpdatingPassword,
+                enabled = uiState.newEmail.isNotBlank() && uiState.emailAuthPassword.isNotBlank() && !uiState.isUpdatingEmail && !uiState.isUpdatingPassword,
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB59A7A), contentColor = Color.White, disabledContainerColor = Color(0xFFD3C1B0), disabledContentColor = Color(0xFFF5F5F5))
@@ -122,11 +111,29 @@ fun ProfileScreen(
                     Text("Actualizar Email")
                 }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+            Divider()
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // --- SECCIÓN CONTRASEÑA ---
+            Text("Contraseña", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text("Cambia tu contraseña de acceso", fontSize = 14.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(12.dp))
+
+            TextFieldWithLabel(label = "Contraseña actual", value = uiState.passwordAuthPassword, onValueChange = profileViewModel::onPasswordAuthPasswordChange, isPassword = true, passwordVisible = uiState.isPasswordVisible, onPasswordToggle = profileViewModel::onTogglePasswordVisibility)
+            Spacer(modifier = Modifier.height(16.dp))
+            TextFieldWithLabel(label = "Nueva contraseña", value = uiState.newPassword, onValueChange = profileViewModel::onNewPasswordChange, isPassword = true, passwordVisible = uiState.isNewPasswordVisible, onPasswordToggle = profileViewModel::onToggleNewPasswordVisibility)
+            Spacer(modifier = Modifier.height(16.dp))
+            TextFieldWithLabel(label = "Confirmar nueva contraseña", value = uiState.confirmNewPassword, onValueChange = profileViewModel::onConfirmNewPasswordChange, isPassword = true, passwordVisible = uiState.isConfirmPasswordVisible, onPasswordToggle = profileViewModel::onToggleConfirmPasswordVisibility)
+
+            Spacer(modifier = Modifier.height(16.dp))
+            PasswordRequirements(password = uiState.newPassword)
+            Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = profileViewModel::onUpdatePasswordClicked,
-                enabled = uiState.newPassword.isNotBlank() && uiState.confirmNewPassword.isNotBlank() && uiState.currentPassword.isNotBlank() && !uiState.isUpdatingPassword && !uiState.isUpdatingEmail,
+                enabled = uiState.passwordAuthPassword.isNotBlank() && uiState.newPassword.isNotBlank() && uiState.confirmNewPassword.isNotBlank() && !uiState.isUpdatingPassword && !uiState.isUpdatingEmail,
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6D5D52), contentColor = Color.White, disabledContainerColor = Color(0xFFB4A9A2), disabledContentColor = Color(0xFFF5F5F5))
@@ -139,10 +146,12 @@ fun ProfileScreen(
                     Text("Cambiar Contraseña")
                 }
             }
-            Spacer(modifier = Modifier.height(24.dp))
-            SecurityInfo()
+
             Spacer(modifier = Modifier.height(24.dp))
 
+            // --- FOOTER ---
+            SecurityInfo()
+            Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = { profileViewModel.logout(onLogout) },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
@@ -190,6 +199,6 @@ private fun SecurityInfo() {
     ) {
         Icon(imageVector = Icons.Default.Shield, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(24.dp))
         Spacer(modifier = Modifier.width(12.dp))
-        Text("Te enviaremos un email de confirmación antes de aplicar cualquier cambio a tu cuenta.", fontSize = 12.sp, color = Color.Gray, lineHeight = 16.sp)
+        Text("Tus cambios se aplicarán de forma segura e inmediata.", fontSize = 12.sp, color = Color.Gray, lineHeight = 16.sp)
     }
 }
