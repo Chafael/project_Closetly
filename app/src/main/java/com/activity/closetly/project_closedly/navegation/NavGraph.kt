@@ -1,35 +1,31 @@
 package com.activity.closetly.project_closedly.navegation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.activity.closetly.project_closedly.ui.login.LoginScreen
-import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
+import com.activity.closetly.project_closedly.ui.screens.home.HomeScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.EditProfilePictureScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.ProfileScreen
-import com.activity.closetly.project_closedly.ui.viewmodel.LoginViewModel
+import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
+import com.activity.closetly.project_closedly.ui.viewmodel.AuthStateViewModel
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
-import com.activity.closetly.project_closedly.ui.viewmodel.RegisterViewModelNew
 
 @Composable
 fun NavGraph(
-    navController: NavHostController
+    navController: NavHostController,
+    startDestination: String
 ) {
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN
+        startDestination = startDestination
     ) {
         composable(Routes.LOGIN) {
-            val loginViewModel: LoginViewModel = hiltViewModel()
+            val authViewModel: AuthStateViewModel = hiltViewModel()
             LoginScreen(
-                loginViewModel = loginViewModel,
+                authViewModel = authViewModel,
                 onLoginSuccess = {
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
@@ -40,22 +36,24 @@ fun NavGraph(
                 }
             )
         }
-
-        composable(Routes.HOME) {
-            TuPantallaDeArmario()
-        }
-
         composable(Routes.REGISTER) {
-            val registerViewModel: RegisterViewModelNew = hiltViewModel()
+            val authViewModel: AuthStateViewModel = hiltViewModel()
             RegisterScreen(
-                registerViewModel = registerViewModel,
+                authViewModel = authViewModel,
                 onRegisterSuccess = {
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.REGISTER) { inclusive = true }
                     }
                 },
-                onNavigateToLogin = {
+                onNavigateBack = {
                     navController.popBackStack()
+                }
+            )
+        }
+        composable(Routes.HOME) {
+            HomeScreen(
+                onNavigateToProfile = {
+                    navController.navigate(Routes.PROFILE)
                 }
             )
         }
@@ -64,9 +62,7 @@ fun NavGraph(
             ProfileScreen(
                 profileViewModel = profileViewModel,
                 onNavigateBack = {
-                    navController.navigate(Routes.HOME) {
-                        popUpTo(Routes.PROFILE) { inclusive = true }
-                    }
+                    navController.popBackStack()
                 },
                 onLogout = {
                     navController.navigate(Routes.LOGIN) {
@@ -98,12 +94,3 @@ object Routes {
     const val EDIT_PROFILE_PICTURE = "edit_profile_picture"
 }
 
-@Composable
-fun TuPantallaDeArmario() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "AQUÍ VA LA VISTA DE TU ARMARIO")
-    }
-}
