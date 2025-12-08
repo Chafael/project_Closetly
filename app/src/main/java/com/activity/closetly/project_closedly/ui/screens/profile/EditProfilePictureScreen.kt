@@ -124,7 +124,7 @@ fun EditProfilePictureScreen(
                     .background(Color(0xFFD7C4B8)),
                 contentAlignment = Alignment.Center
             ) {
-                key(selectedImageUri) {
+                key(selectedImageUri?.toString()) {
                     if (selectedImageUri != null) {
                         AsyncImage(
                             model = selectedImageUri,
