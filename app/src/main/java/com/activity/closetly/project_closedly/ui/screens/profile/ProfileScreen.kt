@@ -81,11 +81,9 @@ fun ProfileScreen(
                 ProfileHeader(
                     username = uiState.username,
                     memberSince = uiState.memberSince,
+                    profileImageUri = profileViewModel.selectedImageUri.collectAsState().value,
                     onEditClick = onNavigateToEditPicture
                 )
-                Text("Editar Perfil", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 16.dp))
-                Text("Configuración de Cuenta", fontSize = 16.sp, color = Color(0xFFB59A7A), fontWeight = FontWeight.SemiBold)
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
