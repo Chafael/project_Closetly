@@ -1,42 +1,16 @@
 package com.activity.closetly.project_closedly.ui.screens.profile
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -79,14 +53,10 @@ fun ProfileScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         },
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -100,48 +70,19 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ProfileHeader(
-                    username = uiState.username,
-                    memberSince = uiState.memberSince
-                )
-
-                Text(
-                    text = "Editar Perfil",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 16.dp)
-                )
-
-                Text(
-                    text = "Configuración de Cuenta",
-                    fontSize = 16.sp,
-                    color = Color(0xFFB59A7A),
-                    fontWeight = FontWeight.SemiBold
-                )
+                ProfileHeader(username = uiState.username, memberSince = uiState.memberSince)
+                Text("Editar Perfil", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 16.dp))
+                Text("Configuración de Cuenta", fontSize = 16.sp, color = Color(0xFFB59A7A), fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
             Text("Correo Electrónico", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Text("Tu email para iniciar sesión", fontSize = 14.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(12.dp))
 
-            TextFieldWithLabel(
-                label = "Email actual",
-                value = uiState.email,
-                onValueChange = {},
-                enabled = false,
-                isEditable = true
-            )
+            TextFieldWithLabel(label = "Email actual", value = uiState.email, onValueChange = {}, enabled = false, isEditable = true)
             Spacer(modifier = Modifier.height(16.dp))
-            TextFieldWithLabel(
-                label = "Nuevo email",
-                value = uiState.newEmail,
-                onValueChange = profileViewModel::onNewEmailChange,
-                placeholder = "nuevo@email.com",
-                keyboardType = KeyboardType.Email,
-                isError = uiState.errorMessage?.contains("email", ignoreCase = true) == true
-            )
+            TextFieldWithLabel(label = "Nuevo email", value = uiState.newEmail, onValueChange = profileViewModel::onNewEmailChange, placeholder = "nuevo@email.com", keyboardType = KeyboardType.Email)
 
             Spacer(modifier = Modifier.height(24.dp))
             Divider()
@@ -151,65 +92,29 @@ fun ProfileScreen(
             Text("Cambia tu contraseña de acceso", fontSize = 14.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(12.dp))
 
-            TextFieldWithLabel(
-                label = "Contraseña actual",
-                value = uiState.currentPassword,
-                onValueChange = profileViewModel::onCurrentPasswordChange,
-                isPassword = true,
-                passwordVisible = uiState.isPasswordVisible,
-                onPasswordToggle = profileViewModel::onTogglePasswordVisibility,
-                isError = uiState.errorMessage?.contains("actual", ignoreCase = true) == true
-            )
+            TextFieldWithLabel(label = "Contraseña actual", value = uiState.currentPassword, onValueChange = profileViewModel::onCurrentPasswordChange, isPassword = true, passwordVisible = uiState.isPasswordVisible, onPasswordToggle = profileViewModel::onTogglePasswordVisibility)
             Spacer(modifier = Modifier.height(16.dp))
-            TextFieldWithLabel(
-                label = "Nueva contraseña",
-                value = uiState.newPassword,
-                onValueChange = profileViewModel::onNewPasswordChange,
-                isPassword = true,
-                passwordVisible = uiState.isNewPasswordVisible,
-                onPasswordToggle = profileViewModel::onToggleNewPasswordVisibility,
-                isError = uiState.errorMessage?.contains("nueva", ignoreCase = true) == true
-            )
+            TextFieldWithLabel(label = "Nueva contraseña", value = uiState.newPassword, onValueChange = profileViewModel::onNewPasswordChange, isPassword = true, passwordVisible = uiState.isNewPasswordVisible, onPasswordToggle = profileViewModel::onToggleNewPasswordVisibility)
             Spacer(modifier = Modifier.height(16.dp))
-            TextFieldWithLabel(
-                label = "Confirmar nueva contraseña",
-                value = uiState.confirmNewPassword,
-                onValueChange = profileViewModel::onConfirmNewPasswordChange,
-                isPassword = true,
-                passwordVisible = uiState.isConfirmPasswordVisible,
-                onPasswordToggle = profileViewModel::onToggleConfirmPasswordVisibility,
-                isError = uiState.errorMessage?.contains("coinciden", ignoreCase = true) == true
-            )
+            TextFieldWithLabel(label = "Confirmar nueva contraseña", value = uiState.confirmNewPassword, onValueChange = profileViewModel::onConfirmNewPasswordChange, isPassword = true, passwordVisible = uiState.isConfirmPasswordVisible, onPasswordToggle = profileViewModel::onToggleConfirmPasswordVisibility)
             Spacer(modifier = Modifier.height(16.dp))
 
             PasswordRequirements(password = uiState.newPassword)
 
             uiState.errorMessage?.let { error ->
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = error,
-                    color = MaterialTheme.colorScheme.error,
-                    fontSize = 13.sp
-                )
+                Text(text = error, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
             }
-
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = profileViewModel::onUpdateEmailClicked,
-                enabled = uiState.newEmail.isNotBlank() && uiState.currentPassword.isNotBlank() && !uiState.isLoading,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
+                enabled = uiState.newEmail.isNotBlank() && uiState.currentPassword.isNotBlank() && !uiState.isUpdatingEmail && !uiState.isUpdatingPassword,
+                modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFB59A7A),
-                    contentColor = Color.White,
-                    disabledContainerColor = Color(0xFFD3C1B0),
-                    disabledContentColor = Color(0xFFF5F5F5)
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB59A7A), contentColor = Color.White, disabledContainerColor = Color(0xFFD3C1B0), disabledContentColor = Color(0xFFF5F5F5))
             ) {
-                if (uiState.isLoading && uiState.newEmail.isNotBlank()) {
+                if (uiState.isUpdatingEmail) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
                 } else {
                     Icon(imageVector = Icons.Default.Email, contentDescription = null)
@@ -217,24 +122,16 @@ fun ProfileScreen(
                     Text("Actualizar Email")
                 }
             }
-
             Spacer(modifier = Modifier.height(12.dp))
 
             Button(
                 onClick = profileViewModel::onUpdatePasswordClicked,
-                enabled = uiState.currentPassword.isNotBlank() && uiState.newPassword.isNotBlank() && uiState.confirmNewPassword.isNotBlank() && !uiState.isLoading,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
+                enabled = uiState.newPassword.isNotBlank() && uiState.confirmNewPassword.isNotBlank() && uiState.currentPassword.isNotBlank() && !uiState.isUpdatingPassword && !uiState.isUpdatingEmail,
+                modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF6D5D52),
-                    contentColor = Color.White,
-                    disabledContainerColor = Color(0xFFB4A9A2),
-                    disabledContentColor = Color(0xFFF5F5F5)
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6D5D52), contentColor = Color.White, disabledContainerColor = Color(0xFFB4A9A2), disabledContentColor = Color(0xFFF5F5F5))
             ) {
-                if (uiState.isLoading && uiState.newPassword.isNotBlank()) {
+                if (uiState.isUpdatingPassword) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
                 } else {
                     Icon(imageVector = Icons.Default.Lock, contentDescription = null)
@@ -243,27 +140,19 @@ fun ProfileScreen(
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
-
             SecurityInfo()
-
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = { profileViewModel.logout(onLogout) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
+                modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFEBEE),
-                    contentColor = Color(0xFFD32F2F)
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFEBEE), contentColor = Color(0xFFD32F2F))
             ) {
                 Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Cerrar Sesión")
             }
-
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
@@ -274,7 +163,6 @@ private fun PasswordRequirements(password: String) {
     val hasMinChars = password.length >= 8
     val hasUppercase = password.any { it.isUpperCase() }
     val hasNumber = password.any { it.isDigit() }
-
     Column {
         Text("Requisitos de contraseña:", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
         Spacer(modifier = Modifier.height(8.dp))
@@ -288,12 +176,7 @@ private fun PasswordRequirements(password: String) {
 private fun RequirementItem(text: String, isMet: Boolean) {
     val color = if (isMet) Color(0xFF4CAF50) else Color.Gray
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-            imageVector = Icons.Default.CheckCircle,
-            contentDescription = null,
-            tint = color,
-            modifier = Modifier.size(16.dp)
-        )
+        Icon(imageVector = Icons.Default.CheckCircle, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
         Spacer(modifier = Modifier.width(8.dp))
         Text(text, fontSize = 14.sp, color = color)
     }
@@ -302,24 +185,11 @@ private fun RequirementItem(text: String, isMet: Boolean) {
 @Composable
 private fun SecurityInfo() {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp))
-            .padding(12.dp),
+        modifier = Modifier.fillMaxWidth().background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp)).padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = Icons.Default.Shield,
-            contentDescription = null,
-            tint = Color.Gray,
-            modifier = Modifier.size(24.dp)
-        )
+        Icon(imageVector = Icons.Default.Shield, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(24.dp))
         Spacer(modifier = Modifier.width(12.dp))
-        Text(
-            text = "Te enviaremos un email de confirmación antes de aplicar cualquier cambio a tu cuenta.",
-            fontSize = 12.sp,
-            color = Color.Gray,
-            lineHeight = 16.sp
-        )
+        Text("Te enviaremos un email de confirmación antes de aplicar cualquier cambio a tu cuenta.", fontSize = 12.sp, color = Color.Gray, lineHeight = 16.sp)
     }
 }
