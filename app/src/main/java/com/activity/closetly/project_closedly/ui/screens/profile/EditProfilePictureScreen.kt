@@ -1,25 +1,21 @@
 package com.activity.closetly.project_closedly.ui.screens.profile
 
+import android.Manifest
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,197 +26,139 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import com.activity.closetly.project_closedly.ui.theme.brown
+import com.activity.closetly.project_closedly.ui.theme.lightbrown
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
+import com.activity.closetly.project_closedly.utils.ComposeFileProvider
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfilePictureScreen(
     profileViewModel: ProfileViewModel,
     onNavigateBack: () -> Unit
 ) {
-    val uiState = profileViewModel.uiState
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
+    var hasImage by remember { mutableStateOf(false) }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            hasImage = true
+            imageUri?.let { profileViewModel.onImageSelected(it) }
+        }
+    }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        selectedImageUri = uri
-    }
-
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success: Boolean ->
-        if (success) {
-
+        uri?.let {
+            hasImage = true
+            imageUri = it
+            profileViewModel.onImageSelected(it)
         }
     }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            val newImageUri = ComposeFileProvider.getImageUri(context)
+            imageUri = newImageUri
+            cameraLauncher.launch(newImageUri)
+        }
+    }
+
+    val selectedImageUri by profileViewModel.selectedImageUri.collectAsState()
+    val painter = rememberAsyncImagePainter(
+        model = selectedImageUri ?: "https://via.placeholder.com/150"
+    )
+
+    val darkBrownColor = brown
+    val backArrowColor = lightbrown
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Foto de Perfil", fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        "Foto de perfil",
+                        color = darkBrownColor,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver"
+                            contentDescription = "Regresar",
+                            tint = backArrowColor
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
-        },
-        bottomBar = {
-            Button(
-                onClick = {
-                    selectedImageUri?.let {
-
-                    }
-                    onNavigateBack()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB59A7A))
-            ) {
-                Text("Listo", color = Color.White, fontSize = 16.sp)
-            }
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Box(
+            Text("Foto Actual", color = darkBrownColor, fontSize = 18.sp)
+            Spacer(modifier = Modifier.height(16.dp))
+            Image(
+                painter = painter,
+                contentDescription = "Foto de perfil",
                 modifier = Modifier
-                    .size(120.dp)
+                    .size(150.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFF0EAE4))
-                    .clickable {  },
-                contentAlignment = Alignment.Center
-            ) {
-                if (selectedImageUri != null) {
-                    AsyncImage(
-                        model = selectedImageUri,
-                        contentDescription = "Nueva foto de perfil",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Text(
-                        text = uiState.username.firstOrNull()?.uppercase() ?: "A",
-                        fontSize = 48.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFFB59A7A)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Foto Actual", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Text("Toca para cambiar", fontSize = 14.sp, color = Color.Gray)
+                    .background(Color.LightGray),
+                contentScale = ContentScale.Crop
+            )
             Spacer(modifier = Modifier.height(32.dp))
 
-            OptionItem(
-                icon = Icons.Default.CameraAlt,
-                title = "Tomar Foto",
-                subtitle = "Usa la cámara para una foto nueva",
-                onClick = {
-
-                }
-            )
-            Divider(color = Color.LightGray.copy(alpha = 0.5f))
-            OptionItem(
-                icon = Icons.Default.PhotoLibrary,
-                title = "Elegir de Galería",
-                subtitle = "Selecciona una foto existente",
-                onClick = { galleryLauncher.launch("image/*") }
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Card(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F5F1)),
-                border = null
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = null,
-                            tint = Color(0xFFB59A7A)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            "Consejos para la mejor foto",
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF6D5D52)
-                        )
+                OptionItem(
+                    icon = Icons.Default.CameraAlt,
+                    text = "Tomar foto",
+                    color = darkBrownColor,
+                    onClick = {
+                        permissionLauncher.launch(Manifest.permission.CAMERA)
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    ConsejoItem(text = "Usa buena iluminación natural")
-                    ConsejoItem(text = "Centra tu rostro en la imagen")
-                    ConsejoItem(text = "Evita fondos muy ocupados")
-                }
+                )
+                OptionItem(
+                    icon = Icons.Default.PhotoLibrary,
+                    text = "Elegir de la galería",
+                    color = darkBrownColor,
+                    onClick = {
+                        galleryLauncher.launch("image/*")
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun OptionItem(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+fun OptionItem(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, color: Color, onClick: () -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable(onClick = onClick)
     ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(Color(0xFFF5F5F5)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(imageVector = icon, contentDescription = null, tint = Color.Gray)
-        }
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-            Text(subtitle, fontSize = 14.sp, color = Color.Gray)
-        }
         Icon(
-            imageVector = Icons.Filled.ArrowForwardIos,
-            contentDescription = null,
-            tint = Color.LightGray,
-            modifier = Modifier.size(16.dp)
+            imageVector = icon,
+            contentDescription = text,
+            tint = color,
+            modifier = Modifier.size(40.dp)
         )
-    }
-}
-
-@Composable
-private fun ConsejoItem(text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 4.dp)) {
-        Icon(
-            imageVector = Icons.Default.Check,
-            contentDescription = null,
-            tint = Color(0xFFB59A7A),
-            modifier = Modifier.size(16.dp)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text, color = Color.Gray, fontSize = 14.sp)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text, color = color)
     }
 }
