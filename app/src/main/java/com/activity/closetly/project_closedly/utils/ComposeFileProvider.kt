@@ -6,7 +6,8 @@ import androidx.core.content.FileProvider
 import java.io.File
 
 object ComposeFileProvider {
-    fun getImageUri(context: Context): Uri {val directory = File(context.cacheDir, "images")
+    fun getImageUri(context: Context): Uri {
+        val directory = File(context.cacheDir, "images")
         directory.mkdirs()
         val file = File.createTempFile(
             "selected_image_",
