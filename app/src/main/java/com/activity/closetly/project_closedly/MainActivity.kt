@@ -14,6 +14,7 @@ import com.activity.closetly.project_closedly.navegation.NavGraph
 import com.activity.closetly.project_closedly.navegation.Routes
 import com.activity.closetly.project_closedly.ui.theme.Project_ClosetlyTheme
 import com.activity.closetly.project_closedly.ui.viewmodel.AuthStateViewModel
+import com.activity.closetly.project_closedly.notifications.NotificationScheduler
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -22,6 +23,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        NotificationScheduler.scheduleNotifications(this)
         setContent {
             Project_ClosetlyTheme {
                 App()
