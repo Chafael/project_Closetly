@@ -4,7 +4,6 @@ import android.Manifest
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -32,7 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import com.activity.closetly.project_closedly.R
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
 import com.activity.closetly.project_closedly.utils.ComposeFileProvider
@@ -125,23 +124,23 @@ fun EditProfilePictureScreen(
                     .background(Color(0xFFD7C4B8)),
                 contentAlignment = Alignment.Center
             ) {
-                if (selectedImageUri != null) {
-                    Image(
-                        painter = rememberAsyncImagePainter(
+                key(selectedImageUri) {
+                    if (selectedImageUri != null) {
+                        AsyncImage(
                             model = selectedImageUri,
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
                             error = painterResource(id = R.drawable.ic_launcher_foreground)
-                        ),
-                        contentDescription = "Foto de perfil",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Text(
-                        text = initial,
-                        color = Color.White,
-                        fontSize = 48.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                        )
+                    } else {
+                        Text(
+                            text = initial,
+                            color = Color.White,
+                            fontSize = 48.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
 
