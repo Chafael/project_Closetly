@@ -33,6 +33,7 @@ fun ProfileScreen(
     val uiState = profileViewModel.uiState
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val selectedImageUri by profileViewModel.selectedImageUri.collectAsState()
 
     LaunchedEffect(key1 = uiState.successMessage) {
         if (uiState.successMessage != null) {
@@ -80,8 +81,9 @@ fun ProfileScreen(
             ) {
                 ProfileHeader(
                     username = uiState.username,
+                    email = uiState.email,
                     memberSince = uiState.memberSince,
-                    profileImageUri = profileViewModel.selectedImageUri.collectAsState().value,
+                    profileImageUri = selectedImageUri,
                     onEditClick = onNavigateToEditPicture
                 )
 
