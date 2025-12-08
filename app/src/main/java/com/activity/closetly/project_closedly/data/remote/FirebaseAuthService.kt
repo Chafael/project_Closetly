@@ -94,8 +94,7 @@ class FirebaseAuthService @Inject constructor(
 
             val credential = EmailAuthProvider.getCredential(email, currentPassword)
             user.reauthenticate(credential).await()
-
-            user.verifyBeforeUpdateEmail(newEmail).await()
+            user.updateEmail(newEmail).await()
 
             firestore.collection("users")
                 .document(user.uid)
