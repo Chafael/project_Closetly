@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.activity.closetly.project_closedly.ui.screens.profile.ProfileUIState
+import com.activity.closetly.project_closedly.ui.viewmodel.ProfileUiState
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
