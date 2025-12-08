@@ -85,84 +85,150 @@ fun ProfileScreen(
                     onEditClick = onNavigateToEditPicture
                 )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Text("Correo Electrónico", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text("Tu email para iniciar sesión", fontSize = 14.sp, color = Color.Gray)
-            Spacer(modifier = Modifier.height(12.dp))
+                Text("Correo Electrónico", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text("Tu email para iniciar sesión", fontSize = 14.sp, color = Color.Gray)
+                Spacer(modifier = Modifier.height(12.dp))
 
-            TextFieldWithLabel(label = "Email actual", value = uiState.email, onValueChange = {}, enabled = false, isEditable = true)
-            Spacer(modifier = Modifier.height(16.dp))
-            TextFieldWithLabel(label = "Nuevo email", value = uiState.newEmail, onValueChange = profileViewModel::onNewEmailChange, placeholder = "nuevo@email.com", keyboardType = KeyboardType.Email)
-            Spacer(modifier = Modifier.height(16.dp))
-            TextFieldWithLabel(label = "Contraseña actual para confirmar", value = uiState.emailAuthPassword, onValueChange = profileViewModel::onEmailAuthPasswordChange, isPassword = true, passwordVisible = uiState.isPasswordVisible, onPasswordToggle = profileViewModel::onTogglePasswordVisibility)
+                TextFieldWithLabel(
+                    label = "Email actual",
+                    value = uiState.email,
+                    onValueChange = {},
+                    enabled = false,
+                    isEditable = true
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                TextFieldWithLabel(
+                    label = "Nuevo email",
+                    value = uiState.newEmail,
+                    onValueChange = profileViewModel::onNewEmailChange,
+                    placeholder = "nuevo@email.com",
+                    keyboardType = KeyboardType.Email
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                TextFieldWithLabel(
+                    label = "Contraseña actual para confirmar",
+                    value = uiState.emailAuthPassword,
+                    onValueChange = profileViewModel::onEmailAuthPasswordChange,
+                    isPassword = true,
+                    passwordVisible = uiState.isPasswordVisible,
+                    onPasswordToggle = profileViewModel::onTogglePasswordVisibility
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick = profileViewModel::onUpdateEmailClicked,
-                enabled = uiState.newEmail.isNotBlank() && uiState.emailAuthPassword.isNotBlank() && !uiState.isUpdatingEmail && !uiState.isUpdatingPassword,
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB59A7A), contentColor = Color.White, disabledContainerColor = Color(0xFFD3C1B0), disabledContentColor = Color(0xFFF5F5F5))
-            ) {
-                if (uiState.isUpdatingEmail) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
-                } else {
-                    Icon(imageVector = Icons.Default.Email, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Actualizar Email")
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = profileViewModel::onUpdateEmailClicked,
+                    enabled = uiState.newEmail.isNotBlank() && uiState.emailAuthPassword.isNotBlank() && !uiState.isUpdatingEmail && !uiState.isUpdatingPassword,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFB59A7A),
+                        contentColor = Color.White,
+                        disabledContainerColor = Color(0xFFD3C1B0),
+                        disabledContentColor = Color(0xFFF5F5F5)
+                    )
+                ) {
+                    if (uiState.isUpdatingEmail) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White
+                        )
+                    } else {
+                        Icon(imageVector = Icons.Default.Email, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Actualizar Email")
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Divider()
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+                Divider()
+                Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Contraseña", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text("Cambia tu contraseña de acceso", fontSize = 14.sp, color = Color.Gray)
-            Spacer(modifier = Modifier.height(12.dp))
+                Text("Contraseña", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text("Cambia tu contraseña de acceso", fontSize = 14.sp, color = Color.Gray)
+                Spacer(modifier = Modifier.height(12.dp))
 
-            TextFieldWithLabel(label = "Contraseña actual", value = uiState.passwordAuthPassword, onValueChange = profileViewModel::onPasswordAuthPasswordChange, isPassword = true, passwordVisible = uiState.isPasswordVisible, onPasswordToggle = profileViewModel::onTogglePasswordVisibility)
-            Spacer(modifier = Modifier.height(16.dp))
-            TextFieldWithLabel(label = "Nueva contraseña", value = uiState.newPassword, onValueChange = profileViewModel::onNewPasswordChange, isPassword = true, passwordVisible = uiState.isNewPasswordVisible, onPasswordToggle = profileViewModel::onToggleNewPasswordVisibility)
-            Spacer(modifier = Modifier.height(16.dp))
-            TextFieldWithLabel(label = "Confirmar nueva contraseña", value = uiState.confirmNewPassword, onValueChange = profileViewModel::onConfirmNewPasswordChange, isPassword = true, passwordVisible = uiState.isConfirmPasswordVisible, onPasswordToggle = profileViewModel::onToggleConfirmPasswordVisibility)
+                TextFieldWithLabel(
+                    label = "Contraseña actual",
+                    value = uiState.passwordAuthPassword,
+                    onValueChange = profileViewModel::onPasswordAuthPasswordChange,
+                    isPassword = true,
+                    passwordVisible = uiState.isPasswordVisible,
+                    onPasswordToggle = profileViewModel::onTogglePasswordVisibility
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                TextFieldWithLabel(
+                    label = "Nueva contraseña",
+                    value = uiState.newPassword,
+                    onValueChange = profileViewModel::onNewPasswordChange,
+                    isPassword = true,
+                    passwordVisible = uiState.isNewPasswordVisible,
+                    onPasswordToggle = profileViewModel::onToggleNewPasswordVisibility
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                TextFieldWithLabel(
+                    label = "Confirmar nueva contraseña",
+                    value = uiState.confirmNewPassword,
+                    onValueChange = profileViewModel::onConfirmNewPasswordChange,
+                    isPassword = true,
+                    passwordVisible = uiState.isConfirmPasswordVisible,
+                    onPasswordToggle = profileViewModel::onToggleConfirmPasswordVisibility
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
-            PasswordRequirements(password = uiState.newPassword)
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+                PasswordRequirements(password = uiState.newPassword)
+                Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
-                onClick = profileViewModel::onUpdatePasswordClicked,
-                enabled = uiState.passwordAuthPassword.isNotBlank() && uiState.newPassword.isNotBlank() && uiState.confirmNewPassword.isNotBlank() && !uiState.isUpdatingPassword && !uiState.isUpdatingEmail,
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6D5D52), contentColor = Color.White, disabledContainerColor = Color(0xFFB4A9A2), disabledContentColor = Color(0xFFF5F5F5))
-            ) {
-                if (uiState.isUpdatingPassword) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
-                } else {
-                    Icon(imageVector = Icons.Default.Lock, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Cambiar Contraseña")
+                Button(
+                    onClick = profileViewModel::onUpdatePasswordClicked,
+                    enabled = uiState.passwordAuthPassword.isNotBlank() && uiState.newPassword.isNotBlank() && uiState.confirmNewPassword.isNotBlank() && !uiState.isUpdatingPassword && !uiState.isUpdatingEmail,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF6D5D52),
+                        contentColor = Color.White,
+                        disabledContainerColor = Color(0xFFB4A9A2),
+                        disabledContentColor = Color(0xFFF5F5F5)
+                    )
+                ) {
+                    if (uiState.isUpdatingPassword) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White
+                        )
+                    } else {
+                        Icon(imageVector = Icons.Default.Lock, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Cambiar Contraseña")
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            SecurityInfo()
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick = { profileViewModel.logout(onLogout) },
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFEBEE), contentColor = Color(0xFFD32F2F))
-            ) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Cerrar Sesión")
+                SecurityInfo()
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = { profileViewModel.logout(onLogout) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFFEBEE),
+                        contentColor = Color(0xFFD32F2F)
+                    )
+                ) {
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Cerrar Sesión")
+                }
+                Spacer(modifier = Modifier.height(32.dp))
             }
-            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
@@ -186,7 +252,12 @@ private fun PasswordRequirements(password: String) {
 private fun RequirementItem(text: String, isMet: Boolean) {
     val color = if (isMet) Color(0xFF4CAF50) else Color.Gray
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(imageVector = Icons.Default.CheckCircle, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
+        Icon(
+            imageVector = Icons.Default.CheckCircle,
+            contentDescription = null,
+            tint = color,
+            modifier = Modifier.size(16.dp)
+        )
         Spacer(modifier = Modifier.width(8.dp))
         Text(text, fontSize = 14.sp, color = color)
     }
@@ -195,11 +266,24 @@ private fun RequirementItem(text: String, isMet: Boolean) {
 @Composable
 private fun SecurityInfo() {
     Row(
-        modifier = Modifier.fillMaxWidth().background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp)).padding(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp))
+            .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(imageVector = Icons.Default.Shield, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(24.dp))
+        Icon(
+            imageVector = Icons.Default.Shield,
+            contentDescription = null,
+            tint = Color.Gray,
+            modifier = Modifier.size(24.dp)
+        )
         Spacer(modifier = Modifier.width(12.dp))
-        Text("Tus cambios se aplicarán de forma segura e inmediata.", fontSize = 12.sp, color = Color.Gray, lineHeight = 16.sp)
+        Text(
+            "Tus cambios se aplicarán de forma segura e inmediata.",
+            fontSize = 12.sp,
+            color = Color.Gray,
+            lineHeight = 16.sp
+        )
     }
 }
