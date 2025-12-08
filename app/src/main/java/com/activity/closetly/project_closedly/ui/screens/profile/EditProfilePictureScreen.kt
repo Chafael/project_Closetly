@@ -15,8 +15,6 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -74,7 +72,7 @@ fun EditProfilePictureScreen(
     )
 
     val darkBrownColor = brown
-    val backArrowColor = lightbrown
+    val backArrowColor = Color(0xFF424242)
 
     Scaffold(
         topBar = {
@@ -95,7 +93,7 @@ fun EditProfilePictureScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         }
     ) { paddingValues ->
@@ -106,7 +104,7 @@ fun EditProfilePictureScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Foto Actual", color = darkBrownColor, fontSize = 18.sp)
+            Text("Foto Actual", color = darkBrownColor, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(16.dp))
             Image(
                 painter = painter,
