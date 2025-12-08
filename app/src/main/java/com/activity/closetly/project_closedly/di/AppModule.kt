@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.activity.closetly.project_closedly.data.local.dao.GarmentDao
 import com.activity.closetly.project_closedly.data.local.dao.UserDao
 import com.activity.closetly.project_closedly.data.local.database.AppDatabase
+import com.activity.closetly.project_closedly.utils.PreferencesManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -44,4 +45,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideGarmentDao(database: AppDatabase): GarmentDao = database.garmentDao()
+
+    @Provides
+    @Singleton
+    fun providePreferencesManager(@ApplicationContext context: Context): PreferencesManager {
+        return PreferencesManager(context)
+    }
 }
