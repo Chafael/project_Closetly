@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Info
@@ -116,7 +117,6 @@ fun EditProfilePictureScreen(
                         contentScale = ContentScale.Crop
                     )
                 } else {
-
                     Text(
                         text = uiState.username.firstOrNull()?.uppercase() ?: "A",
                         fontSize = 48.sp,
@@ -203,7 +203,7 @@ private fun OptionItem(icon: androidx.compose.ui.graphics.vector.ImageVector, ti
             Text(subtitle, fontSize = 14.sp, color = Color.Gray)
         }
         Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+            imageVector = Icons.Filled.ArrowForwardIos,
             contentDescription = null,
             tint = Color.LightGray,
             modifier = Modifier.size(16.dp)
