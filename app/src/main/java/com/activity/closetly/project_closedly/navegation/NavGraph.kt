@@ -1,4 +1,4 @@
-package com.activity.closetly.project_closedly.navigation
+package com.activity.closetly.project_closedly.navegation
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -85,3 +85,4 @@ object Routes {
     const val PROFILE = "profile"
     const val EDIT_PROFILE_PICTURE = "edit_profile_picture"
 }
+
