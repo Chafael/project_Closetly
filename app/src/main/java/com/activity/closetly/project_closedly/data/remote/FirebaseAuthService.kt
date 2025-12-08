@@ -94,12 +94,13 @@ class FirebaseAuthService @Inject constructor(
 
             val credential = EmailAuthProvider.getCredential(email, currentPassword)
             user.reauthenticate(credential).await()
-            user.verifyBeforeUpdateEmail(newEmail).await()
 
             firestore.collection("users")
                 .document(user.uid)
                 .update("email", newEmail)
                 .await()
+
+            user.verifyBeforeUpdateEmail(newEmail).await()
 
             AuthResult.Success(Unit)
         } catch (e: Exception) {
@@ -128,6 +129,7 @@ class FirebaseAuthService @Inject constructor(
 
             val credential = EmailAuthProvider.getCredential(email, currentPassword)
             user.reauthenticate(credential).await()
+
             user.updatePassword(newPassword).await()
 
             AuthResult.Success(Unit)
