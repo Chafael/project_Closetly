@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,6 +18,7 @@ import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.ProfileScreen
 import com.activity.closetly.project_closedly.ui.screens.wardrobe.WardrobeScreen
 import com.activity.closetly.project_closedly.ui.screens.welcome.WelcomeScreen
+import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
 
 private const val TAG = "NavGraph"
 
@@ -34,23 +36,16 @@ fun NavGraph(
     navController: NavHostController = rememberNavController(),
     startDestination: String = Routes.LOGIN
 ) {
-    Log.d(TAG, "NavGraph inicializado")
-    Log.d(TAG, "Start destination: $startDestination")
-
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
         composable(Routes.LOGIN) {
-            Log.d(TAG, "Mostrando LoginScreen")
-
             LoginScreen(
                 onNavigateToRegister = {
-                    Log.d(TAG, "Navegando a Register desde Login")
                     navController.navigate(Routes.REGISTER)
                 },
                 onLoginSuccess = {
-                    Log.d(TAG, "Login exitoso, navegando a Wardrobe")
                     navController.navigate(Routes.WARDROBE) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
@@ -59,17 +54,13 @@ fun NavGraph(
         }
 
         composable(Routes.REGISTER) {
-            Log.d(TAG, "Mostrando RegisterScreen")
-
             RegisterScreen(
                 onNavigateToLogin = {
-                    Log.d(TAG, "Navegando a Login desde Register")
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.REGISTER) { inclusive = true }
                     }
                 },
                 onRegisterSuccess = {
-                    Log.d(TAG, "Registro exitoso, navegando a Welcome")
                     navController.navigate(Routes.WELCOME) {
                         popUpTo(Routes.REGISTER) { inclusive = true }
                     }
@@ -78,11 +69,8 @@ fun NavGraph(
         }
 
         composable(Routes.WELCOME) {
-            Log.d(TAG, "Mostrando WelcomeScreen")
-
             WelcomeScreen(
                 onContinue = {
-                    Log.d(TAG, "Continuando a Wardrobe desde Welcome")
                     navController.navigate(Routes.WARDROBE) {
                         popUpTo(Routes.WELCOME) { inclusive = true }
                     }
@@ -91,23 +79,17 @@ fun NavGraph(
         }
 
         composable(Routes.WARDROBE) {
-            Log.d(TAG, "Mostrando WardrobeScreen")
-
             WardrobeScreen(
                 onNavigateToUpload = {
-                    Log.d(TAG, "Navegando a Upload desde Wardrobe")
                     navController.navigate(Routes.UPLOAD_GARMENT)
                 },
                 onNavigateToProfile = {
-                    Log.d(TAG, "CLICK EN AVATAR - Navegando a Profile desde Wardrobe")
                     navController.navigate(Routes.PROFILE)
                 }
             )
         }
 
         composable(Routes.UPLOAD_GARMENT) {
-            Log.d(TAG, "Mostrando UploadGarment (placeholder)")
-
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -120,19 +102,16 @@ fun NavGraph(
         }
 
         composable(Routes.PROFILE) {
-            Log.d(TAG, "Mostrando ProfileScreen")
+            val profileViewModel: ProfileViewModel = hiltViewModel()
 
             ProfileScreen(
+                profileViewModel = profileViewModel,
                 onNavigateBack = {
-                    Log.d(TAG, "Volviendo desde Profile")
                     if (navController.previousBackStackEntry != null) {
                         navController.popBackStack()
-                    } else {
-                        Log.w(TAG, "No hay entrada anterior en el back stack")
                     }
                 },
                 onLogout = {
-                    Log.d(TAG, "Logout ejecutado, navegando a Login")
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(0) { inclusive = true }
                     }
