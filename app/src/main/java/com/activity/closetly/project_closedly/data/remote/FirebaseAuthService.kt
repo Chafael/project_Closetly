@@ -106,20 +106,20 @@ class FirebaseAuthService @Inject constructor(
             user.reauthenticate(credential).await()
 
             Log.d(TAG, "Reautenticacion exitosa")
-            Log.d(TAG, "Actualizando email en Authentication")
+            Log.d(TAG, "Enviando email de verificacion")
 
-            user.updateEmail(newEmail).await()
+            user.verifyBeforeUpdateEmail(newEmail).await()
 
-            Log.d(TAG, "Email actualizado en Authentication")
-            Log.d(TAG, "Actualizando email en Firestore")
+            Log.d(TAG, "Email de verificacion enviado")
+            Log.d(TAG, "El usuario debe verificar el nuevo email antes de que se actualice")
 
             firestore.collection("users")
                 .document(user.uid)
                 .update("email", newEmail)
                 .await()
 
-            Log.d(TAG, "Email actualizado en Firestore")
-            Log.d(TAG, "Actualizacion completada exitosamente")
+            Log.d(TAG, "Email de verificacion enviado")
+            Log.d(TAG, "El usuario debe verificar el nuevo email antes de que se actualice")
 
             AuthResult.Success(Unit)
         } catch (e: Exception) {
