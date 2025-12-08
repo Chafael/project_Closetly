@@ -5,39 +5,23 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.activity.closetly.project_closedly.ui.screens.LoginScreen
-import com.activity.closetly.project_closedly.ui.screens.RegisterScreen
-import com.activity.closetly.project_closedly.ui.screens.SplashScreen
+import com.activity.closetly.project_closedly.ui.login.LoginScreen
+import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.EditProfilePictureScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.ProfileScreen
-import com.activity.closetly.project_closedly.ui.viewmodel.AuthViewModel
+import com.activity.closetly.project_closedly.ui.viewmodel.AuthStateViewModel
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
 
 @Composable
 fun NavGraph(
-    navController: NavHostController,
-    authViewModel: AuthViewModel
+    navController: NavHostController
 ) {
     NavHost(
         navController = navController,
-        startDestination = Routes.SPLASH
+        startDestination = Routes.LOGIN
     ) {
-        composable(Routes.SPLASH) {
-            SplashScreen(
-                authViewModel = authViewModel,
-                onNavigateToLogin = {
-                    navController.navigate(Routes.LOGIN) {
-                        popUpTo(Routes.SPLASH) { inclusive = true }
-                    }
-                },
-                onNavigateToHome = {
-                    navController.navigate(Routes.PROFILE) {
-                        popUpTo(Routes.SPLASH) { inclusive = true }
-                    }
-                }
-            )
-        }
         composable(Routes.LOGIN) {
+            val authViewModel: AuthStateViewModel = hiltViewModel()
             LoginScreen(
                 authViewModel = authViewModel,
                 onLoginSuccess = {
@@ -51,6 +35,7 @@ fun NavGraph(
             )
         }
         composable(Routes.REGISTER) {
+            val authViewModel: AuthStateViewModel = hiltViewModel()
             RegisterScreen(
                 authViewModel = authViewModel,
                 onRegisterSuccess = {
@@ -95,7 +80,6 @@ fun NavGraph(
 }
 
 object Routes {
-    const val SPLASH = "splash"
     const val LOGIN = "login"
     const val REGISTER = "register"
     const val PROFILE = "profile"
