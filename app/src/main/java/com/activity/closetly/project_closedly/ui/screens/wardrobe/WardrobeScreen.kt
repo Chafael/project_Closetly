@@ -89,7 +89,6 @@ fun WardrobeScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WardrobeTopBar(
     garmentCount: Int,
@@ -98,9 +97,7 @@ private fun WardrobeTopBar(
     profileViewModel: ProfileViewModel
 ) {
     val selectedImageUri by profileViewModel.selectedImageUri.collectAsState()
-    val profileImagePainter = rememberAsyncImagePainter(
-        model = selectedImageUri ?: "https://via.placeholder.com/150"
-    )
+    val uiState = profileViewModel.uiState
 
     Column(
         modifier = Modifier
@@ -143,33 +140,24 @@ private fun WardrobeTopBar(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .clickable { onProfileClick() }
+                        .background(Color(0xFFB59A7A))
+                        .clickable { onProfileClick() },
+                    contentAlignment = Alignment.Center
                 ) {
                     if (selectedImageUri != null) {
                         Image(
-                            painter = profileImagePainter,
+                            painter = rememberAsyncImagePainter(model = selectedImageUri),
                             contentDescription = "Foto de perfil",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
                     } else {
-                        Surface(
-                            modifier = Modifier.fillMaxSize(),
-                            shape = CircleShape,
-                            color = Color(0xFFB59A7A)
-                        ) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                Text(
-                                    text = "A",
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 18.sp
-                                )
-                            }
-                        }
+                        Text(
+                            text = uiState.username.firstOrNull()?.uppercase() ?: "A",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
                     }
                 }
             }
