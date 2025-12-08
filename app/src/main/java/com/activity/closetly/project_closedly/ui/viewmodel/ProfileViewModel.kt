@@ -39,7 +39,7 @@ class ProfileViewModel @Inject constructor(
                 if (result is AuthResult.Success) {
                     val data = result.data
                     uiState = uiState.copy(
-                        email = data["email"] as? String ?: "",
+                        email = data["email"] as? String ?: user.email ?: "",
                         username = data["username"] as? String ?: "",
                         memberSince = data["createdAt"] as? Long ?: 0
                     )
@@ -60,6 +60,10 @@ class ProfileViewModel @Inject constructor(
         preferencesManager.saveProfileImageUri(uri.toString())
     }
 
+    fun getInitial(): String {
+        return uiState.email.firstOrNull()?.uppercase() ?: "U"
+    }
+
     fun onUpdateEmailClicked() {
         viewModelScope.launch {
             uiState = uiState.copy(isUpdatingEmail = true, errorMessage = null)
@@ -69,6 +73,7 @@ class ProfileViewModel @Inject constructor(
             } else {
                 uiState = uiState.copy(
                     successMessage = "Email actualizado con éxito",
+                    email = uiState.newEmail,
                     newEmail = "",
                     emailAuthPassword = ""
                 )
