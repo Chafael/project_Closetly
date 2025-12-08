@@ -97,27 +97,32 @@ fun ProfileScreen(
                 .verticalScroll(scrollState)
                 .padding(horizontal = 24.dp)
         ) {
-            ProfileHeader(
-                username = uiState.username,
-                memberSince = uiState.memberSince
-            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                ProfileHeader(
+                    username = uiState.username,
+                    memberSince = uiState.memberSince
+                )
 
-            Text(
-                text = "Editar Perfil",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 16.dp)
-            )
+                Text(
+                    text = "Editar Perfil",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
 
-            Text(
-                text = "Configuración de Cuenta",
-                fontSize = 16.sp,
-                color = Color(0xFFB59A7A),
-                fontWeight = FontWeight.SemiBold
-            )
+                Text(
+                    text = "Configuración de Cuenta",
+                    fontSize = 16.sp,
+                    color = Color(0xFFB59A7A),
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            // -- SECCIÓN CORREO ELECTRÓNICO --
             Text("Correo Electrónico", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Text("Tu email para iniciar sesión", fontSize = 14.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(12.dp))
@@ -143,7 +148,6 @@ fun ProfileScreen(
             Divider()
             Spacer(modifier = Modifier.height(24.dp))
 
-            // -- SECCIÓN CONTRASEÑA --
             Text("Contraseña", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Text("Cambia tu contraseña de acceso", fontSize = 14.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(12.dp))
@@ -179,7 +183,7 @@ fun ProfileScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            PasswordRequirements()
+            PasswordRequirements(password = uiState.newPassword)
 
             uiState.errorMessage?.let { error ->
                 Spacer(modifier = Modifier.height(8.dp))
@@ -192,15 +196,21 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // -- BOTONES DE ACCIÓN --
             Button(
                 onClick = profileViewModel::onUpdateEmailClicked,
                 enabled = uiState.newEmail.isNotBlank() && uiState.currentPassword.isNotBlank() && !uiState.isLoading,
-                modifier = Modifier.fillMaxWidth().height(50.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB59A7A))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFB59A7A),
+                    contentColor = Color.White,
+                    disabledContainerColor = Color(0xFFD3C1B0),
+                    disabledContentColor = Color(0xFFF5F5F5)
+                )
             ) {
-                if (uiState.isLoading) {
+                if (uiState.isLoading && uiState.newEmail.isNotBlank()) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
                 } else {
                     Icon(imageVector = Icons.Default.Email, contentDescription = null)
@@ -214,11 +224,18 @@ fun ProfileScreen(
             Button(
                 onClick = profileViewModel::onUpdatePasswordClicked,
                 enabled = uiState.currentPassword.isNotBlank() && uiState.newPassword.isNotBlank() && uiState.confirmNewPassword.isNotBlank() && !uiState.isLoading,
-                modifier = Modifier.fillMaxWidth().height(50.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6D5D52))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF6D5D52),
+                    contentColor = Color.White,
+                    disabledContainerColor = Color(0xFFB4A9A2),
+                    disabledContentColor = Color(0xFFF5F5F5)
+                )
             ) {
-                if (uiState.isLoading) {
+                if (uiState.isLoading && uiState.newPassword.isNotBlank()) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
                 } else {
                     Icon(imageVector = Icons.Default.Lock, contentDescription = null)
@@ -232,10 +249,11 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // -- BOTÓN CERRAR SESIÓN --
             Button(
                 onClick = { profileViewModel.logout(onLogout) },
-                modifier = Modifier.fillMaxWidth().height(50.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFFFEBEE),
@@ -253,27 +271,32 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun PasswordRequirements() {
+private fun PasswordRequirements(password: String) {
+    val hasMinChars = password.length >= 8
+    val hasUppercase = password.any { it.isUpperCase() }
+    val hasNumber = password.any { it.isDigit() }
+
     Column {
         Text("Requisitos de contraseña:", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
         Spacer(modifier = Modifier.height(8.dp))
-        RequirementItem(text = "Mínimo 8 caracteres")
-        RequirementItem(text = "Al menos una letra mayúscula")
-        RequirementItem(text = "Al menos un número")
+        RequirementItem(text = "Mínimo 8 caracteres", isMet = hasMinChars)
+        RequirementItem(text = "Al menos una letra mayúscula", isMet = hasUppercase)
+        RequirementItem(text = "Al menos un número", isMet = hasNumber)
     }
 }
 
 @Composable
-private fun RequirementItem(text: String) {
+private fun RequirementItem(text: String, isMet: Boolean) {
+    val color = if (isMet) Color(0xFF4CAF50) else Color.Gray
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
             imageVector = Icons.Default.CheckCircle,
             contentDescription = null,
-            tint = Color.Gray,
+            tint = color,
             modifier = Modifier.size(16.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(text, fontSize = 14.sp, color = Color.Gray)
+        Text(text, fontSize = 14.sp, color = color)
     }
 }
 
