@@ -40,13 +40,18 @@ fun TextFieldWithLabel(
     isEditable: Boolean = false
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        Text(label, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color(0xFF6D5D52)
+        )
         Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(placeholder, color = Color.Gray) },
+            placeholder = { Text(placeholder, color = Color.LightGray) },
             enabled = enabled,
             singleLine = true,
             isError = isError,
@@ -67,7 +72,9 @@ fun TextFieldWithLabel(
                 unfocusedBorderColor = Color.LightGray,
                 disabledBorderColor = Color(0xFFEEEEEE),
                 disabledTextColor = Color.Black,
-                disabledContainerColor = Color(0xFFF5F5F5)
+                disabledContainerColor = Color(0xFFF5F5F5),
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black
             )
         )
     }
