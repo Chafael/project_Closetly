@@ -75,7 +75,7 @@ fun NavGraph(
                 },
                 onLogout = {
                     navController.navigate(Routes.LOGIN) {
-                        popUpTo(0) { inclusive = true }
+                        popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 },
                 onNavigateToEditPicture = {
