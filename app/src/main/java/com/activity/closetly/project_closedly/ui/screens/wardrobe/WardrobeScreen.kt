@@ -1,6 +1,5 @@
 package com.activity.closetly.project_closedly.ui.screens.wardrobe
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -25,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.activity.closetly.project_closedly.R
 import com.activity.closetly.project_closedly.data.local.entity.GarmentEntity
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
