@@ -144,23 +144,23 @@ private fun WardrobeTopBar(
                         .clickable { onProfileClick() },
                     contentAlignment = Alignment.Center
                 ) {
-                    if (selectedImageUri != null) {
-                        Image(
-                            painter = rememberAsyncImagePainter(
+                    key(selectedImageUri) {
+                        if (selectedImageUri != null) {
+                            AsyncImage(
                                 model = selectedImageUri,
+                                contentDescription = "Foto de perfil",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
                                 error = painterResource(id = R.drawable.ic_launcher_foreground)
-                            ),
-                            contentDescription = "Foto de perfil",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Text(
-                            text = initial,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
-                        )
+                            )
+                        } else {
+                            Text(
+                                text = initial,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
                     }
                 }
             }
