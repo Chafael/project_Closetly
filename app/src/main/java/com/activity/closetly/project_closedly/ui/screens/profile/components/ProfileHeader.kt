@@ -17,16 +17,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.activity.closetly.project_closedly.R
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun ProfileHeader(
     username: String,
+    email: String,
     memberSince: Long,
     profileImageUri: Uri?,
     onEditClick: () -> Unit
@@ -39,9 +42,7 @@ fun ProfileHeader(
         "Cargando fecha..."
     }
 
-    val painter = rememberAsyncImagePainter(
-        model = profileImageUri ?: "https://via.placeholder.com/150"
-    )
+    val initial = email.firstOrNull()?.uppercase() ?: "U"
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -51,26 +52,26 @@ fun ProfileHeader(
             contentAlignment = Alignment.BottomEnd,
             modifier = Modifier.clickable(onClick = onEditClick)
         ) {
-            if (profileImageUri != null) {
-                Image(
-                    painter = painter,
-                    contentDescription = "Foto de perfil",
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFB59A7A)),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFB59A7A)),
-                    contentAlignment = Alignment.Center
-                ) {
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFB59A7A)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (profileImageUri != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            model = profileImageUri,
+                            error = painterResource(id = R.drawable.ic_launcher_foreground)
+                        ),
+                        contentDescription = "Foto de perfil",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
                     Text(
-                        text = username.firstOrNull()?.uppercase() ?: "U",
+                        text = initial,
                         color = Color.White,
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold
