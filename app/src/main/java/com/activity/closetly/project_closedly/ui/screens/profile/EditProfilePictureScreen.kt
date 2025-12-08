@@ -26,8 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.activity.closetly.project_closedly.ui.theme.brown
-import com.activity.closetly.project_closedly.ui.theme.lightbrown
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
 import com.activity.closetly.project_closedly.utils.ComposeFileProvider
 
@@ -44,7 +42,9 @@ fun EditProfilePictureScreen(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-            imageUri?.let { profileViewModel.onImageSelected(it) }
+            imageUri?.let { uri ->
+                profileViewModel.onImageSelected(uri)
+            }
         }
     }
 
@@ -71,7 +71,7 @@ fun EditProfilePictureScreen(
         model = selectedImageUri ?: "https://via.placeholder.com/150"
     )
 
-    val darkBrownColor = brown
+    val darkBrownColor = Color(0xFF6D5D52)
     val backArrowColor = Color(0xFF424242)
 
     Scaffold(
@@ -104,7 +104,12 @@ fun EditProfilePictureScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Foto Actual", color = darkBrownColor, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(
+                "Foto Actual",
+                color = darkBrownColor,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Image(
                 painter = painter,
