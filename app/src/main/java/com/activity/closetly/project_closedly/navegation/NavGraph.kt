@@ -10,8 +10,10 @@ import com.activity.closetly.project_closedly.ui.login.LoginScreen
 import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.EditProfilePictureScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.ProfileScreen
-import com.activity.closetly.project_closedly.ui.viewmodel.AuthStateViewModel
+import com.activity.closetly.project_closedly.ui.viewmodel.HomeViewModel
+import com.activity.closetly.project_closedly.ui.viewmodel.LoginViewModel
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
+import com.activity.closetly.project_closedly.ui.viewmodel.RegisterViewModelNew
 
 @Composable
 fun NavGraph(
@@ -23,9 +25,9 @@ fun NavGraph(
         startDestination = startDestination
     ) {
         composable(Routes.LOGIN) {
-            val authViewModel: AuthStateViewModel = hiltViewModel()
+            val loginViewModel: LoginViewModel = hiltViewModel()
             LoginScreen(
-                authViewModel = authViewModel,
+                loginViewModel = loginViewModel,
                 onLoginSuccess = {
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
@@ -37,23 +39,27 @@ fun NavGraph(
             )
         }
         composable(Routes.REGISTER) {
-            val authViewModel: AuthStateViewModel = hiltViewModel()
+            val registerViewModel: RegisterViewModelNew = hiltViewModel()
             RegisterScreen(
-                authViewModel = authViewModel,
+                registerViewModel = registerViewModel,
                 onRegisterSuccess = {
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.REGISTER) { inclusive = true }
                     }
                 },
-                onNavigateBack = {
+                onNavigateToLogin = {
                     navController.popBackStack()
                 }
             )
         }
         composable(Routes.HOME) {
+            val homeViewModel: HomeViewModel = hiltViewModel()
             HomeScreen(
-                onNavigateToProfile = {
-                    navController.navigate(Routes.PROFILE)
+                homeViewModel = homeViewModel,
+                onLogout = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
