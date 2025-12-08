@@ -5,11 +5,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.activity.closetly.project_closedly.ui.home.HomeScreen
+import com.activity.closetly.project_closedly.ui.screens.home.HomeScreen
 import com.activity.closetly.project_closedly.ui.login.LoginScreen
+import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.EditProfilePictureScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.ProfileScreen
-import com.activity.closetly.project_closedly.ui.screens.register.RegisterScreen
 import com.activity.closetly.project_closedly.ui.viewmodel.AuthStateViewModel
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
 
