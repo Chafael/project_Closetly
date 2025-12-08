@@ -52,7 +52,7 @@ class ProfileViewModel @Inject constructor(
                 uiState = uiState.copy(errorMessage = result.message)
             } else {
                 uiState = uiState.copy(
-                    successMessage = "Email actualizado. Revisa tu correo para verificar.",
+                    successMessage = "¡Revisa tu nuevo correo! Haz clic en el enlace para finalizar el cambio.",
                     newEmail = "",
                     currentPassword = ""
                 )
