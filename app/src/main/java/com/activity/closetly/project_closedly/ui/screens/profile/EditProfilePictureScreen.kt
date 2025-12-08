@@ -126,7 +126,6 @@ fun EditProfilePictureScreen(
             ) {
                 if (selectedImageUri != null) {
                     AsyncImage(
-                        key = selectedImageUri,
                         model = selectedImageUri,
                         contentDescription = "Foto de perfil",
                         modifier = Modifier.fillMaxSize(),

@@ -46,6 +46,12 @@ class ProfileViewModel @Inject constructor(
                         username = data["username"] as? String ?: "",
                         memberSince = data["createdAt"] as? Long ?: 0
                     )
+                } else {
+                    uiState = uiState.copy(
+                        email = user.email ?: "",
+                        username = user.displayName ?: "",
+                        memberSince = 0
+                    )
                 }
             }
         }
@@ -79,27 +85,68 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onUpdateEmailClicked() {
+        if (uiState.newEmail.isBlank()) {
+            uiState = uiState.copy(errorMessage = "Por favor ingresa un nuevo email")
+            return
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(uiState.newEmail).matches()) {
+            uiState = uiState.copy(errorMessage = "Formato de email inválido")
+            return
+        }
+
+        if (uiState.emailAuthPassword.isBlank()) {
+            uiState = uiState.copy(errorMessage = "Por favor ingresa tu contraseña actual")
+            return
+        }
+
         viewModelScope.launch {
             uiState = uiState.copy(isUpdatingEmail = true, errorMessage = null)
             val result = authRepository.updateEmail(uiState.emailAuthPassword, uiState.newEmail)
             if (result is AuthResult.Error) {
-                uiState = uiState.copy(errorMessage = result.message)
+                uiState = uiState.copy(
+                    isUpdatingEmail = false,
+                    errorMessage = result.message
+                )
             } else {
                 uiState = uiState.copy(
+                    isUpdatingEmail = false,
                     successMessage = "Email actualizado con éxito",
                     email = uiState.newEmail,
                     newEmail = "",
                     emailAuthPassword = ""
                 )
-                loadUserData()
             }
-            uiState = uiState.copy(isUpdatingEmail = false)
         }
     }
 
     fun onUpdatePasswordClicked() {
+        if (uiState.passwordAuthPassword.isBlank()) {
+            uiState = uiState.copy(errorMessage = "Por favor ingresa tu contraseña actual")
+            return
+        }
+
+        if (uiState.newPassword.isBlank()) {
+            uiState = uiState.copy(errorMessage = "Por favor ingresa una nueva contraseña")
+            return
+        }
+
+        if (uiState.newPassword.length < 6) {
+            uiState = uiState.copy(errorMessage = "La contraseña debe tener al menos 6 caracteres")
+            return
+        }
+
         if (uiState.newPassword != uiState.confirmNewPassword) {
             uiState = uiState.copy(errorMessage = "Las nuevas contraseñas no coinciden")
+            return
+        }
+
+        val hasMinChars = uiState.newPassword.length >= 8
+        val hasUppercase = uiState.newPassword.any { it.isUpperCase() }
+        val hasNumber = uiState.newPassword.any { it.isDigit() }
+
+        if (!hasMinChars || !hasUppercase || !hasNumber) {
+            uiState = uiState.copy(errorMessage = "La contraseña no cumple con los requisitos de seguridad")
             return
         }
 
@@ -107,25 +154,28 @@ class ProfileViewModel @Inject constructor(
             uiState = uiState.copy(isUpdatingPassword = true, errorMessage = null)
             val result = authRepository.updatePassword(uiState.passwordAuthPassword, uiState.newPassword)
             if (result is AuthResult.Error) {
-                uiState = uiState.copy(errorMessage = result.message)
+                uiState = uiState.copy(
+                    isUpdatingPassword = false,
+                    errorMessage = result.message
+                )
             } else {
                 uiState = uiState.copy(
+                    isUpdatingPassword = false,
                     successMessage = "Contraseña actualizada con éxito",
                     passwordAuthPassword = "",
                     newPassword = "",
                     confirmNewPassword = ""
                 )
             }
-            uiState = uiState.copy(isUpdatingPassword = false)
         }
     }
 
-    fun onNewEmailChange(value: String) { uiState = uiState.copy(newEmail = value) }
-    fun onEmailAuthPasswordChange(value: String) { uiState = uiState.copy(emailAuthPassword = value) }
+    fun onNewEmailChange(value: String) { uiState = uiState.copy(newEmail = value, errorMessage = null) }
+    fun onEmailAuthPasswordChange(value: String) { uiState = uiState.copy(emailAuthPassword = value, errorMessage = null) }
 
-    fun onPasswordAuthPasswordChange(value: String) { uiState = uiState.copy(passwordAuthPassword = value) }
-    fun onNewPasswordChange(value: String) { uiState = uiState.copy(newPassword = value) }
-    fun onConfirmNewPasswordChange(value: String) { uiState = uiState.copy(confirmNewPassword = value) }
+    fun onPasswordAuthPasswordChange(value: String) { uiState = uiState.copy(passwordAuthPassword = value, errorMessage = null) }
+    fun onNewPasswordChange(value: String) { uiState = uiState.copy(newPassword = value, errorMessage = null) }
+    fun onConfirmNewPasswordChange(value: String) { uiState = uiState.copy(confirmNewPassword = value, errorMessage = null) }
 
     fun onTogglePasswordVisibility() { uiState = uiState.copy(isPasswordVisible = !uiState.isPasswordVisible) }
     fun onToggleNewPasswordVisibility() { uiState = uiState.copy(isNewPasswordVisible = !uiState.isNewPasswordVisible) }

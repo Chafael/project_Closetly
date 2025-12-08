@@ -35,6 +35,8 @@ fun ProfileScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val selectedImageUri by profileViewModel.selectedImageUri.collectAsState()
 
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = uiState.successMessage) {
         if (uiState.successMessage != null) {
             snackbarHostState.showSnackbar(uiState.successMessage)
@@ -47,6 +49,41 @@ fun ProfileScreen(
             snackbarHostState.showSnackbar(uiState.errorMessage)
             profileViewModel.clearErrorMessage()
         }
+    }
+
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = {
+                Text(
+                    text = "Cerrar Sesión",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text("¿Estás seguro de que deseas cerrar sesión?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                        profileViewModel.logout(onLogout)
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Color(0xFFD32F2F)
+                    )
+                ) {
+                    Text("Cerrar Sesión")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showLogoutDialog = false }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -215,7 +252,7 @@ fun ProfileScreen(
                 SecurityInfo()
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
-                    onClick = { profileViewModel.logout(onLogout) },
+                    onClick = { showLogoutDialog = true },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),

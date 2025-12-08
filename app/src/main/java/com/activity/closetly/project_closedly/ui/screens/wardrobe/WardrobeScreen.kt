@@ -95,6 +95,7 @@ private fun WardrobeTopBar(
     profileViewModel: ProfileViewModel
 ) {
     val selectedImageUri by profileViewModel.selectedImageUri.collectAsState()
+    val profileUiState = profileViewModel.uiState
     val initial = profileViewModel.getInitial()
 
     Column(
@@ -142,23 +143,21 @@ private fun WardrobeTopBar(
                         .clickable { onProfileClick() },
                     contentAlignment = Alignment.Center
                 ) {
-                    key(selectedImageUri?.toString()) {
-                        if (selectedImageUri != null) {
-                            AsyncImage(
-                                model = selectedImageUri,
-                                contentDescription = "Foto de perfil",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop,
-                                error = painterResource(id = R.drawable.ic_launcher_foreground)
-                            )
-                        } else {
-                            Text(
-                                text = initial,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
-                            )
-                        }
+                    if (selectedImageUri != null) {
+                        AsyncImage(
+                            model = selectedImageUri,
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            error = painterResource(id = R.drawable.ic_launcher_foreground)
+                        )
+                    } else {
+                        Text(
+                            text = initial,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
                     }
                 }
             }
