@@ -1,116 +1,64 @@
-package com.activity.closetly.project_closedly.ui.screens.home
+package com.activity.closetly.project_closedly.ui
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.activity.closetly.project_closedly.ui.viewmodel.HomeViewModel
+import coil.compose.rememberAsyncImagePainter
+import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel = hiltViewModel(),
-    onLogout: () -> Unit = {},
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit,
+    profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
-    val userEmail by homeViewModel.userEmail.collectAsState()
+    val selectedImageUri by profileViewModel.selectedImageUri.collectAsState()
+    val painter = rememberAsyncImagepainter(
+        model = selectedImageUri ?: "https://via.placeholder.com/150"
+    )
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Closetly",
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFB59A7A)
-                ),
-                actions = {
-                    IconButton(onClick = onNavigateToProfile) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Perfil",
-                            tint = Color.White
-                        )
-                    }
-                    IconButton(onClick = {
-                        homeViewModel.logout()
-                        onLogout()
-                    }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                            contentDescription = "Cerrar sesión",
-                            tint = Color.White
-                        )
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = "¡Bienvenido!",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFFB59A7A)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = userEmail ?: "Usuario",
-                fontSize = 18.sp,
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFF5F5F5)
-                )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Tu Armario Digital",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Comienza a organizar tu ropa",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-                }
+                Image(
+                    painter = painter,
+                    contentDescription = "Ir al perfil",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color.LightGray)
+                        .clickable { onNavigateToProfile() },
+                    contentScale = ContentScale.Crop
+                )
+            }
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("VISTA DE TU ARMARIO")
             }
         }
     }
