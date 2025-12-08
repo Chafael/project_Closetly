@@ -149,7 +149,7 @@ private fun WardrobeTopBar(
                             contentDescription = "Foto de perfil",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop,
-                            error = painterResource(id = R.drawable.ic_launcher_foreground)
+                            error = painterResource(id = R.drawable.ic_placeholder)
                         )
                     } else {
                         Text(
@@ -256,8 +256,8 @@ private fun GarmentCard(
                     contentDescription = garment.name,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
-                    placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
-                    error = painterResource(id = R.drawable.ic_launcher_foreground)
+                    placeholder = painterResource(id = R.drawable.ic_placeholder),
+                    error = painterResource(id = R.drawable.ic_placeholder)
                 )
             }
 
