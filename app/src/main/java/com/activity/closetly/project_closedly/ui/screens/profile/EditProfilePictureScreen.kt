@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -32,20 +33,19 @@ import com.activity.closetly.project_closedly.ui.theme.lightbrown
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
 import com.activity.closetly.project_closedly.utils.ComposeFileProvider
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfilePictureScreen(
     profileViewModel: ProfileViewModel,
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
-    var hasImage by remember { mutableStateOf(false) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-            hasImage = true
             imageUri?.let { profileViewModel.onImageSelected(it) }
         }
     }
@@ -54,8 +54,6 @@ fun EditProfilePictureScreen(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            hasImage = true
-            imageUri = it
             profileViewModel.onImageSelected(it)
         }
     }
@@ -147,7 +145,7 @@ fun EditProfilePictureScreen(
 }
 
 @Composable
-fun OptionItem(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, color: Color, onClick: () -> Unit) {
+fun OptionItem(icon: ImageVector, text: String, color: Color, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.clickable(onClick = onClick)
