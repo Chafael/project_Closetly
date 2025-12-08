@@ -6,13 +6,20 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,6 +30,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
@@ -37,6 +45,7 @@ fun EditProfilePictureScreen(
 ) {
     val context = LocalContext.current
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val scrollState = rememberScrollState()
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
@@ -72,16 +81,18 @@ fun EditProfilePictureScreen(
     )
 
     val darkBrownColor = Color(0xFF6D5D52)
-    val backArrowColor = Color(0xFF424242)
+    val lightGrayColor = Color(0xFF757575)
+    val backgroundColor = Color(0xFFF5F5F5)
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        "Foto de perfil",
+                        "Foto de Perfil",
                         color = darkBrownColor,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 18.sp
                     )
                 },
                 navigationIcon = {
@@ -89,11 +100,13 @@ fun EditProfilePictureScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Regresar",
-                            tint = backArrowColor
+                            tint = darkBrownColor
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White
+                )
             )
         }
     ) { paddingValues ->
@@ -101,65 +114,234 @@ fun EditProfilePictureScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .background(Color.White)
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                "Foto Actual",
-                color = darkBrownColor,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Image(
-                painter = painter,
-                contentDescription = "Foto de perfil",
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape)
-                    .background(Color.LightGray),
-                contentScale = ContentScale.Crop
-            )
             Spacer(modifier = Modifier.height(32.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+            Box(
+                contentAlignment = Alignment.Center
             ) {
-                OptionItem(
+                if (selectedImageUri != null) {
+                    Image(
+                        painter = painter,
+                        contentDescription = "Foto de perfil",
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFD7C4B8)),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFD7C4B8)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "A",
+                            color = Color.White,
+                            fontSize = 48.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Foto Actual",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF212121)
+            )
+
+            Text(
+                text = "Toca para cambiar",
+                fontSize = 14.sp,
+                color = lightGrayColor
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                ProfileOption(
                     icon = Icons.Default.CameraAlt,
-                    text = "Tomar foto",
-                    color = darkBrownColor,
+                    title = "Tomar Foto",
+                    subtitle = "Usa la cámara para una foto nueva",
                     onClick = {
                         permissionLauncher.launch(Manifest.permission.CAMERA)
                     }
                 )
-                OptionItem(
-                    icon = Icons.Default.PhotoLibrary,
-                    text = "Elegir de la galería",
-                    color = darkBrownColor,
+
+                Spacer(modifier = Modifier.height(1.dp))
+
+                ProfileOption(
+                    icon = Icons.Outlined.Image,
+                    title = "Elegir de Galería",
+                    subtitle = "Selecciona una foto existente",
                     onClick = {
                         galleryLauncher.launch("image/*")
                     }
                 )
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = backgroundColor
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Info,
+                            contentDescription = null,
+                            tint = lightGrayColor,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Consejos para la mejor foto",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF212121)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    TipItem("Usa buena iluminación natural")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TipItem("Centra tu rostro en la imagen")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TipItem("Evita fondos muy ocupados")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Button(
+                onClick = onNavigateBack,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFB59A7A)
+                )
+            ) {
+                Text(
+                    text = "Listo",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
 
 @Composable
-fun OptionItem(icon: ImageVector, text: String, color: Color, onClick: () -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(onClick = onClick)
+private fun ProfileOption(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        color = Color.White
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp, horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color(0xFFF5F5F5), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = Color(0xFF757575),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF212121)
+                )
+                Text(
+                    text = subtitle,
+                    fontSize = 14.sp,
+                    color = Color(0xFF757575)
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = Color(0xFFBDBDBD),
+                modifier = Modifier.size(24.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun TipItem(text: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = icon,
-            contentDescription = text,
-            tint = color,
-            modifier = Modifier.size(40.dp)
+            imageVector = Icons.Default.Check,
+            contentDescription = null,
+            tint = Color(0xFF9E9E9E),
+            modifier = Modifier.size(16.dp)
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text, color = color)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = text,
+            fontSize = 13.sp,
+            color = Color(0xFF757575)
+        )
     }
 }
