@@ -1,5 +1,6 @@
 package com.activity.closetly.project_closedly.data.remote
 
+import android.util.Log
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -10,6 +11,8 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val TAG = "FirebaseAuthService"
 
 sealed class AuthResult<out T> {
     data class Success<T>(val data: T) : AuthResult<T>()
@@ -89,20 +92,43 @@ class FirebaseAuthService @Inject constructor(
         newEmail: String
     ): AuthResult<Unit> {
         return try {
+            Log.d(TAG, "Iniciando actualizacion de email")
+
             val user = currentUser ?: return AuthResult.Error("No hay usuario autenticado")
             val email = user.email ?: return AuthResult.Error("Email actual no disponible")
 
+            Log.d(TAG, "Email actual: $email")
+            Log.d(TAG, "Nuevo email: $newEmail")
+            Log.d(TAG, "Usuario UID: ${user.uid}")
+            Log.d(TAG, "Reautenticando usuario")
+
             val credential = EmailAuthProvider.getCredential(email, currentPassword)
             user.reauthenticate(credential).await()
+
+            Log.d(TAG, "Reautenticacion exitosa")
+            Log.d(TAG, "Actualizando email en Authentication")
+
             user.updateEmail(newEmail).await()
+
+            Log.d(TAG, "Email actualizado en Authentication")
+            Log.d(TAG, "Actualizando email en Firestore")
 
             firestore.collection("users")
                 .document(user.uid)
                 .update("email", newEmail)
                 .await()
 
+            Log.d(TAG, "Email actualizado en Firestore")
+            Log.d(TAG, "Actualizacion completada exitosamente")
+
             AuthResult.Success(Unit)
         } catch (e: Exception) {
+            Log.e(TAG, "Error al actualizar email")
+            Log.e(TAG, "Tipo de excepcion: ${e.javaClass.simpleName}")
+            Log.e(TAG, "Mensaje: ${e.message}")
+            Log.e(TAG, "Mensaje localizado: ${e.localizedMessage}")
+            Log.e(TAG, "Stack trace:", e)
+
             val errorMessage = when {
                 e.message?.contains("password is invalid", ignoreCase = true) == true ->
                     "La contraseña actual es incorrecta"
@@ -112,7 +138,10 @@ class FirebaseAuthService @Inject constructor(
                     "El formato del email es inválido"
                 e.message?.contains("network", ignoreCase = true) == true ->
                     "Error de conexión. Verifica tu internet"
-                else -> e.localizedMessage ?: "Error al actualizar email"
+                e.message?.contains("OPERATION_NOT_ALLOWED", ignoreCase = true) == true ||
+                        e.message?.contains("sign-in provider is disabled", ignoreCase = true) == true ->
+                    "ERROR DE FIREBASE: El proveedor de email/contraseña está deshabilitado"
+                else -> "Error: ${e.message ?: e.localizedMessage ?: "Error desconocido"}"
             }
             AuthResult.Error(errorMessage)
         }
@@ -123,16 +152,31 @@ class FirebaseAuthService @Inject constructor(
         newPassword: String
     ): AuthResult<Unit> {
         return try {
+            Log.d(TAG, "Iniciando actualizacion de contraseña")
+
             val user = currentUser ?: return AuthResult.Error("No hay usuario autenticado")
             val email = user.email ?: return AuthResult.Error("Email no disponible")
+
+            Log.d(TAG, "Usuario: $email")
+            Log.d(TAG, "Reautenticando usuario")
 
             val credential = EmailAuthProvider.getCredential(email, currentPassword)
             user.reauthenticate(credential).await()
 
+            Log.d(TAG, "Reautenticacion exitosa")
+            Log.d(TAG, "Actualizando contraseña")
+
             user.updatePassword(newPassword).await()
+
+            Log.d(TAG, "Contraseña actualizada exitosamente")
 
             AuthResult.Success(Unit)
         } catch (e: Exception) {
+            Log.e(TAG, "Error al actualizar contraseña")
+            Log.e(TAG, "Tipo de excepcion: ${e.javaClass.simpleName}")
+            Log.e(TAG, "Mensaje: ${e.message}")
+            Log.e(TAG, "Stack trace:", e)
+
             val errorMessage = when {
                 e.message?.contains("password is invalid", ignoreCase = true) == true ->
                     "La contraseña actual es incorrecta"
