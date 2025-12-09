@@ -70,6 +70,10 @@ class ProfileViewModel @Inject constructor(
         _uiState.update { it.copy(newEmail = email) }
     }
 
+    fun updateEmailPassword(password: String) {
+        _uiState.update { it.copy(emailPassword = password) }
+    }
+
     fun updateCurrentPassword(password: String) {
         _uiState.update { it.copy(currentPassword = password) }
     }
@@ -80,6 +84,10 @@ class ProfileViewModel @Inject constructor(
 
     fun updateConfirmPassword(password: String) {
         _uiState.update { it.copy(confirmPassword = password) }
+    }
+
+    fun toggleEmailPasswordVisibility() {
+        _uiState.update { it.copy(showEmailPassword = !it.showEmailPassword) }
     }
 
     fun toggleCurrentPasswordVisibility() {
@@ -94,10 +102,6 @@ class ProfileViewModel @Inject constructor(
         _uiState.update { it.copy(showConfirmPassword = !it.showConfirmPassword) }
     }
 
-    fun toggleSecurityConfirmation() {
-        _uiState.update { it.copy(securityConfirmed = !it.securityConfirmed) }
-    }
-
     fun updateEmail() {
         val state = _uiState.value
         
@@ -106,28 +110,22 @@ class ProfileViewModel @Inject constructor(
             return
         }
         
-        if (state.currentPassword.isBlank()) {
+        if (state.emailPassword.isBlank()) {
             _uiState.update { it.copy(emailUpdateState = ProfileState.Error("Ingresa tu contraseña actual")) }
-            return
-        }
-
-        if (!state.securityConfirmed) {
-            _uiState.update { it.copy(emailUpdateState = ProfileState.Error("Confirma la casilla de seguridad")) }
             return
         }
 
         viewModelScope.launch {
             _uiState.update { it.copy(emailUpdateState = ProfileState.Loading) }
             
-            when (val result = authService.updateUserEmail(state.newEmail, state.currentPassword)) {
+            when (val result = authService.updateUserEmailDirect(state.newEmail, state.emailPassword)) {
                 is AuthResult.Success -> {
                     _uiState.update { 
                         it.copy(
                             emailUpdateState = ProfileState.Success("Email actualizado exitosamente"),
                             currentEmail = state.newEmail,
                             newEmail = "",
-                            currentPassword = "",
-                            securityConfirmed = false
+                            emailPassword = ""
                         )
                     }
                     loadUserProfile()
@@ -171,11 +169,6 @@ class ProfileViewModel @Inject constructor(
             return
         }
 
-        if (!state.securityConfirmed) {
-            _uiState.update { it.copy(passwordUpdateState = ProfileState.Error("Confirma la casilla de seguridad")) }
-            return
-        }
-
         viewModelScope.launch {
             _uiState.update { it.copy(passwordUpdateState = ProfileState.Loading) }
             
@@ -186,8 +179,7 @@ class ProfileViewModel @Inject constructor(
                             passwordUpdateState = ProfileState.Success("Contraseña actualizada exitosamente"),
                             currentPassword = "",
                             newPassword = "",
-                            confirmPassword = "",
-                            securityConfirmed = false
+                            confirmPassword = ""
                         )
                     }
                 }

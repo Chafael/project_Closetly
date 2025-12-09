@@ -221,6 +221,32 @@ class FirebaseAuthService @Inject constructor(
         }
     }
 
+    suspend fun updateUserEmailDirect(newEmail: String, currentPassword: String): AuthResult<Unit> {
+        return try {
+            val user = currentUser ?: return AuthResult.Error("No hay usuario autenticado")
+            
+            Log.d(TAG, "Actualizando email directamente a: $newEmail")
+            
+            val reauthResult = reauthenticateUser(currentPassword)
+            if (reauthResult is AuthResult.Error) {
+                return reauthResult
+            }
+            
+            user.updateEmail(newEmail).await()
+            
+            firestore.collection("users")
+                .document(user.uid)
+                .update("email", newEmail)
+                .await()
+            
+            Log.d(TAG, "Email actualizado exitosamente")
+            AuthResult.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al actualizar email: ${e.message}", e)
+            AuthResult.Error(e.localizedMessage ?: "Error al actualizar email")
+        }
+    }
+
     suspend fun updateUserPassword(currentPassword: String, newPassword: String): AuthResult<Unit> {
         return try {
             val user = currentUser ?: return AuthResult.Error("No hay usuario autenticado")

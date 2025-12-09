@@ -19,13 +19,14 @@ data class ProfileUiState(
     val isLoading: Boolean = false,
     val currentEmail: String = "",
     val newEmail: String = "",
+    val emailPassword: String = "",
     val currentPassword: String = "",
     val newPassword: String = "",
     val confirmPassword: String = "",
+    val showEmailPassword: Boolean = false,
     val showCurrentPassword: Boolean = false,
     val showNewPassword: Boolean = false,
     val showConfirmPassword: Boolean = false,
     val emailUpdateState: ProfileState = ProfileState.Idle,
-    val passwordUpdateState: ProfileState = ProfileState.Idle,
-    val securityConfirmed: Boolean = false
+    val passwordUpdateState: ProfileState = ProfileState.Idle
 )

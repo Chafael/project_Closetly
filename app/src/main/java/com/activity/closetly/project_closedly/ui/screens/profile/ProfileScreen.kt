@@ -1,7 +1,6 @@
 package com.activity.closetly.project_closedly.ui.screens.profile
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -17,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -28,6 +28,7 @@ private val LightBrown = Color(0xFFA28460)
 private val SecondaryGray = Color(0xFF6B7280)
 private val BackgroundGray = Color(0xFFFAFAFA)
 private val LightGray = Color(0xFFF5F5F5)
+private val BorderBrown = Color(0xFFD4C4B0)
 
 @Composable
 fun ProfileScreen(
@@ -75,7 +76,8 @@ fun ProfileScreen(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = PrimaryBrown,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -85,7 +87,8 @@ fun ProfileScreen(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = PrimaryBrown,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -93,7 +96,11 @@ fun ProfileScreen(
             EmailSection(
                 currentEmail = uiState.currentEmail,
                 newEmail = uiState.newEmail,
+                emailPassword = uiState.emailPassword,
                 onNewEmailChange = viewModel::updateNewEmail,
+                onEmailPasswordChange = viewModel::updateEmailPassword,
+                showEmailPassword = uiState.showEmailPassword,
+                onToggleEmailPassword = viewModel::toggleEmailPasswordVisibility,
                 updateState = uiState.emailUpdateState
             )
 
@@ -124,15 +131,16 @@ fun ProfileScreen(
                 onUpdateEmail = viewModel::updateEmail,
                 onUpdatePassword = viewModel::updatePassword,
                 emailUpdateState = uiState.emailUpdateState,
-                passwordUpdateState = uiState.passwordUpdateState
+                passwordUpdateState = uiState.passwordUpdateState,
+                canUpdateEmail = uiState.newEmail.isNotBlank() && uiState.emailPassword.isNotBlank(),
+                canUpdatePassword = uiState.currentPassword.isNotBlank() && 
+                                   uiState.newPassword.isNotBlank() && 
+                                   uiState.confirmPassword.isNotBlank()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            SecurityCheckbox(
-                checked = uiState.securityConfirmed,
-                onCheckedChange = { viewModel.toggleSecurityConfirmation() }
-            )
+            SecurityMessage()
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -220,7 +228,11 @@ private fun UserProfileHeader(
 private fun EmailSection(
     currentEmail: String,
     newEmail: String,
+    emailPassword: String,
     onNewEmailChange: (String) -> Unit,
+    onEmailPasswordChange: (String) -> Unit,
+    showEmailPassword: Boolean,
+    onToggleEmailPassword: () -> Unit,
     updateState: ProfileState
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
@@ -236,7 +248,7 @@ private fun EmailSection(
         Text(
             text = "Tu email para iniciar sesión",
             fontSize = 12.sp,
-            color = SecondaryGray
+            color = PrimaryBrown
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -244,7 +256,7 @@ private fun EmailSection(
         Text(
             text = "Email actual",
             fontSize = 12.sp,
-            color = SecondaryGray
+            color = PrimaryBrown
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -257,14 +269,14 @@ private fun EmailSection(
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 disabledContainerColor = LightGray,
-                disabledBorderColor = Color.Transparent,
-                disabledTextColor = SecondaryGray
+                disabledBorderColor = BorderBrown,
+                disabledTextColor = LightBrown
             ),
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = null,
-                    tint = SecondaryGray,
+                    tint = LightBrown,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -275,7 +287,7 @@ private fun EmailSection(
         Text(
             text = "Nuevo email",
             fontSize = 12.sp,
-            color = SecondaryGray
+            color = PrimaryBrown
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -285,13 +297,51 @@ private fun EmailSection(
             onValueChange = onNewEmailChange,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
-            placeholder = { Text("nuevo@email.com", color = SecondaryGray.copy(alpha = 0.5f)) },
+            placeholder = { Text("nuevo@email.com", color = Color.LightGray) },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 focusedBorderColor = LightBrown,
-                unfocusedBorderColor = Color.LightGray
+                unfocusedBorderColor = BorderBrown,
+                focusedTextColor = LightBrown,
+                unfocusedTextColor = LightBrown
             )
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Contraseña actual",
+            fontSize = 12.sp,
+            color = PrimaryBrown
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        OutlinedTextField(
+            value = emailPassword,
+            onValueChange = onEmailPasswordChange,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            placeholder = { Text("••••••••", color = Color.LightGray) },
+            visualTransformation = if (showEmailPassword) VisualTransformation.None else PasswordVisualTransformation(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedBorderColor = LightBrown,
+                unfocusedBorderColor = BorderBrown,
+                focusedTextColor = LightBrown,
+                unfocusedTextColor = LightBrown
+            ),
+            trailingIcon = {
+                IconButton(onClick = onToggleEmailPassword) {
+                    Icon(
+                        imageVector = if (showEmailPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = if (showEmailPassword) "Ocultar" else "Mostrar",
+                        tint = LightBrown
+                    )
+                }
+            }
         )
 
         if (updateState is ProfileState.Error) {
@@ -346,7 +396,7 @@ private fun PasswordSection(
         Text(
             text = "Cambia tu contraseña de acceso",
             fontSize = 12.sp,
-            color = SecondaryGray
+            color = PrimaryBrown
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -354,7 +404,7 @@ private fun PasswordSection(
         Text(
             text = "Contraseña actual",
             fontSize = 12.sp,
-            color = SecondaryGray
+            color = PrimaryBrown
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -364,19 +414,22 @@ private fun PasswordSection(
             onValueChange = onCurrentPasswordChange,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
+            placeholder = { Text("••••••••", color = Color.LightGray) },
             visualTransformation = if (showCurrentPassword) VisualTransformation.None else PasswordVisualTransformation(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 focusedBorderColor = LightBrown,
-                unfocusedBorderColor = Color.LightGray
+                unfocusedBorderColor = BorderBrown,
+                focusedTextColor = LightBrown,
+                unfocusedTextColor = LightBrown
             ),
             trailingIcon = {
                 IconButton(onClick = onToggleCurrentPassword) {
                     Icon(
                         imageVector = if (showCurrentPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = if (showCurrentPassword) "Ocultar" else "Mostrar",
-                        tint = SecondaryGray
+                        tint = LightBrown
                     )
                 }
             }
@@ -387,7 +440,7 @@ private fun PasswordSection(
         Text(
             text = "Nueva contraseña",
             fontSize = 12.sp,
-            color = SecondaryGray
+            color = PrimaryBrown
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -397,19 +450,22 @@ private fun PasswordSection(
             onValueChange = onNewPasswordChange,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
+            placeholder = { Text("••••••••", color = Color.LightGray) },
             visualTransformation = if (showNewPassword) VisualTransformation.None else PasswordVisualTransformation(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 focusedBorderColor = LightBrown,
-                unfocusedBorderColor = Color.LightGray
+                unfocusedBorderColor = BorderBrown,
+                focusedTextColor = LightBrown,
+                unfocusedTextColor = LightBrown
             ),
             trailingIcon = {
                 IconButton(onClick = onToggleNewPassword) {
                     Icon(
                         imageVector = if (showNewPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = if (showNewPassword) "Ocultar" else "Mostrar",
-                        tint = SecondaryGray
+                        tint = LightBrown
                     )
                 }
             }
@@ -420,7 +476,7 @@ private fun PasswordSection(
         Text(
             text = "Confirmar nueva contraseña",
             fontSize = 12.sp,
-            color = SecondaryGray
+            color = PrimaryBrown
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -430,19 +486,22 @@ private fun PasswordSection(
             onValueChange = onConfirmPasswordChange,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
+            placeholder = { Text("••••••••", color = Color.LightGray) },
             visualTransformation = if (showConfirmPassword) VisualTransformation.None else PasswordVisualTransformation(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
                 focusedBorderColor = LightBrown,
-                unfocusedBorderColor = Color.LightGray
+                unfocusedBorderColor = BorderBrown,
+                focusedTextColor = LightBrown,
+                unfocusedTextColor = LightBrown
             ),
             trailingIcon = {
                 IconButton(onClick = onToggleConfirmPassword) {
                     Icon(
                         imageVector = if (showConfirmPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = if (showConfirmPassword) "Ocultar" else "Mostrar",
-                        tint = SecondaryGray
+                        tint = LightBrown
                     )
                 }
             }
@@ -529,7 +588,9 @@ private fun ActionButtons(
     onUpdateEmail: () -> Unit,
     onUpdatePassword: () -> Unit,
     emailUpdateState: ProfileState,
-    passwordUpdateState: ProfileState
+    passwordUpdateState: ProfileState,
+    canUpdateEmail: Boolean,
+    canUpdatePassword: Boolean
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Button(
@@ -539,9 +600,10 @@ private fun ActionButtons(
                 .height(50.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = LightBrown
+                containerColor = LightBrown,
+                contentColor = Color.White
             ),
-            enabled = emailUpdateState !is ProfileState.Loading
+            enabled = emailUpdateState !is ProfileState.Loading && canUpdateEmail
         ) {
             if (emailUpdateState is ProfileState.Loading) {
                 CircularProgressIndicator(
@@ -553,13 +615,15 @@ private fun ActionButtons(
                 Icon(
                     imageVector = Icons.Default.Email,
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.White
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Actualizar Email",
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White
                 )
             }
         }
@@ -573,9 +637,10 @@ private fun ActionButtons(
                 .height(50.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = LightBrown
+                containerColor = LightBrown,
+                contentColor = Color.White
             ),
-            enabled = passwordUpdateState !is ProfileState.Loading
+            enabled = passwordUpdateState !is ProfileState.Loading && canUpdatePassword
         ) {
             if (passwordUpdateState is ProfileState.Loading) {
                 CircularProgressIndicator(
@@ -587,13 +652,15 @@ private fun ActionButtons(
                 Icon(
                     imageVector = Icons.Default.Lock,
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.White
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Cambiar Contraseña",
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White
                 )
             }
         }
@@ -601,42 +668,25 @@ private fun ActionButtons(
 }
 
 @Composable
-private fun SecurityCheckbox(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
+private fun SecurityMessage() {
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clickable { onCheckedChange(!checked) },
-        verticalAlignment = Alignment.Top
     ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            colors = CheckboxDefaults.colors(
-                checkedColor = LightBrown,
-                uncheckedColor = SecondaryGray
-            )
+        Text(
+            text = "Seguridad",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = PrimaryBrown
         )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Column {
-            Text(
-                text = "Seguridad",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = PrimaryBrown
-            )
-            Text(
-                text = "Solicitar email de confirmación antes de aplicar cualquier cambio a tu cuenta.",
-                fontSize = 12.sp,
-                color = SecondaryGray,
-                lineHeight = 16.sp
-            )
-        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "Los cambios se aplicarán inmediatamente a tu cuenta.",
+            fontSize = 12.sp,
+            color = SecondaryGray,
+            lineHeight = 16.sp
+        )
     }
 }
 
@@ -650,19 +700,22 @@ private fun LogoutButton(onLogout: () -> Unit) {
             .height(50.dp),
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFDC2626)
+            containerColor = Color(0xFFDC2626),
+            contentColor = Color.White
         )
     ) {
         Icon(
             imageVector = Icons.Default.ExitToApp,
             contentDescription = null,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
+            tint = Color.White
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = "Cerrar Sesión",
             fontSize = 16.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
+            color = Color.White
         )
     }
 }
