@@ -41,7 +41,8 @@ private val BackgroundGray = Color(0xFFFAFAFA)
 fun WardrobeScreen(
     wardrobeViewModel: WardrobeViewModel = hiltViewModel(),
     onNavigateToUpload: () -> Unit = {},
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit = {},
+    onNavigateToOutfits: () -> Unit = {}
 ) {
     val garments by wardrobeViewModel.garments.collectAsState()
     val garmentCount by wardrobeViewModel.garmentCount.collectAsState()
@@ -53,6 +54,7 @@ fun WardrobeScreen(
     var showSuccessDialog by remember { mutableStateOf(false) }
     var garmentToDelete by remember { mutableStateOf<GarmentEntity?>(null) }
     var showCategoryMenu by remember { mutableStateOf(false) }
+    var selectedTab by remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
         wardrobeViewModel.refreshProfile()
@@ -70,7 +72,16 @@ fun WardrobeScreen(
             }
         },
         bottomBar = {
-            BottomNavigationBar(selectedTab = 0, onTabSelected = { })
+            BottomNavigationBar(
+                selectedTab = selectedTab,
+                onTabSelected = { tab ->
+                    selectedTab = tab
+                    when (tab) {
+                        1 -> onNavigateToOutfits()
+                        3 -> onNavigateToProfile()
+                    }
+                }
+            )
         }
     ) { paddingValues ->
         Column(
@@ -144,7 +155,7 @@ private fun BottomNavigationBar(selectedTab: Int, onTabSelected: (Int) -> Unit) 
     NavigationBar(containerColor = Color.White, tonalElevation = 8.dp) {
         listOf(
             Triple(0, Icons.Default.Home, "Armario"),
-            Triple(1, Icons.Default.Apps, "Outfits"),
+            Triple(1, Icons.Default.Checkroom, "Outfits"),
             Triple(2, Icons.Default.Add, "Crear"),
             Triple(3, Icons.Default.Person, "Perfil")
         ).forEach { (index, icon, label) ->

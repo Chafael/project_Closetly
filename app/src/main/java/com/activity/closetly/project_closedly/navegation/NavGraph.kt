@@ -2,11 +2,17 @@ package com.activity.closetly.project_closedly.navegation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.activity.closetly.project_closedly.ui.login.LoginScreen
 import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
+import com.activity.closetly.project_closedly.ui.screens.outfits.CreateOutfitScreen
+import com.activity.closetly.project_closedly.ui.screens.outfits.OutfitDetailScreen
+import com.activity.closetly.project_closedly.ui.screens.outfits.OutfitsScreen
+import com.activity.closetly.project_closedly.ui.screens.outfits.RateGarmentScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.ProfilePhotoScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.ProfileScreen
 import com.activity.closetly.project_closedly.ui.screens.success.GarmentSuccessScreen
@@ -25,6 +31,10 @@ object Routes {
     const val PROFILE = "profile"
     const val PROFILE_PHOTO = "profile_photo"
     const val SPLASH = "splash"
+    const val OUTFITS = "outfits"
+    const val CREATE_OUTFIT = "create_outfit"
+    const val OUTFIT_DETAIL = "outfit_detail/{outfitId}"
+    const val RATE_GARMENT = "rate_garment/{garmentId}"
 }
 
 @Composable
@@ -93,6 +103,9 @@ fun NavGraph(
                 },
                 onNavigateToProfile = {
                     navController.navigate(Routes.PROFILE)
+                },
+                onNavigateToOutfits = {
+                    navController.navigate(Routes.OUTFITS)
                 }
             )
         }
@@ -142,6 +155,64 @@ fun NavGraph(
                     navController.popBackStack()
                 },
                 onPhotoUpdated = {
+                }
+            )
+        }
+
+        composable(Routes.OUTFITS) {
+            OutfitsScreen(
+                onNavigateToCreate = {
+                    navController.navigate(Routes.CREATE_OUTFIT)
+                },
+                onNavigateToDetail = { outfitId ->
+                    navController.navigate("outfit_detail/$outfitId")
+                }
+            )
+        }
+
+        composable(Routes.CREATE_OUTFIT) {
+            CreateOutfitScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onCreateSuccess = {
+                    navController.navigate(Routes.OUTFITS) {
+                        popUpTo(Routes.CREATE_OUTFIT) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = "outfit_detail/{outfitId}",
+            arguments = listOf(navArgument("outfitId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val outfitId = backStackEntry.arguments?.getString("outfitId") ?: return@composable
+            OutfitDetailScreen(
+                outfitId = outfitId,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onNavigateToRateGarment = { garmentId ->
+                    navController.navigate("rate_garment/$garmentId")
+                },
+                onOutfitDeleted = {
+                    navController.navigate(Routes.OUTFITS) {
+                        popUpTo(Routes.OUTFITS) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = "rate_garment/{garmentId}",
+            arguments = listOf(navArgument("garmentId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val garmentId = backStackEntry.arguments?.getString("garmentId") ?: return@composable
+            RateGarmentScreen(
+                garmentId = garmentId,
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }

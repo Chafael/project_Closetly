@@ -3,6 +3,7 @@ package com.activity.closetly.project_closedly.di
 import android.content.Context
 import androidx.room.Room
 import com.activity.closetly.project_closedly.data.local.dao.GarmentDao
+import com.activity.closetly.project_closedly.data.local.dao.OutfitDao
 import com.activity.closetly.project_closedly.data.local.dao.UserDao
 import com.activity.closetly.project_closedly.data.local.database.AppDatabase
 import com.google.firebase.auth.FirebaseAuth
@@ -44,4 +45,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideGarmentDao(database: AppDatabase): GarmentDao = database.garmentDao()
+
+    @Provides
+    @Singleton
+    fun provideOutfitDao(database: AppDatabase): OutfitDao = database.outfitDao()
 }

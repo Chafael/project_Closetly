@@ -56,10 +56,6 @@ class CreateOutfitViewModel @Inject constructor(
         uiState = uiState.copy(season = season, errorMessage = null)
     }
 
-    fun onRatingChange(rating: Int) {
-        uiState = uiState.copy(rating = rating, errorMessage = null)
-    }
-
     fun toggleGarmentSelection(garmentId: String) {
         val currentSelection = uiState.selectedGarmentIds.toMutableList()
         if (currentSelection.contains(garmentId)) {
@@ -100,7 +96,7 @@ class CreateOutfitViewModel @Inject constructor(
                     garmentIds = garmentIdsJson,
                     occasion = uiState.occasion,
                     season = uiState.season.ifBlank { null },
-                    rating = uiState.rating
+                    rating = 0
                 )
 
                 outfitRepository.insertOutfit(outfit)

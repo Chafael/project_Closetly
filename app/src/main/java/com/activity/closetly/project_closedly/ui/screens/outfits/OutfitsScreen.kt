@@ -348,7 +348,7 @@ private fun EmptyOutfitsState(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = Icons.Default.CheckroomOutlined,
+            imageVector = Icons.Default.Checkroom,
             contentDescription = null,
             tint = SecondaryGray.copy(alpha = 0.5f),
             modifier = Modifier.size(100.dp)

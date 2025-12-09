@@ -6,7 +6,6 @@ data class CreateOutfitState(
     val selectedGarmentIds: List<String> = emptyList(),
     val occasion: String = "Casual",
     val season: String = "Todo el año",
-    val rating: Int = 0,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isCreateSuccess: Boolean = false
