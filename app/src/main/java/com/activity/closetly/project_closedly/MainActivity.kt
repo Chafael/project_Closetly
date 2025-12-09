@@ -17,10 +17,33 @@ import com.activity.closetly.project_closedly.ui.theme.Project_ClosetlyTheme
 import com.activity.closetly.project_closedly.ui.viewmodel.AuthStateViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.activity.closetly.project_closedly.workers.NotificationWorker
+import java.util.concurrent.TimeUnit
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                startNotificationWork()
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            startNotificationWork()
+        }
+
         enableEdgeToEdge()
         setContent {
             Project_ClosetlyTheme {
@@ -35,5 +58,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun startNotificationWork() {
+        val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInitialDelay(30, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(applicationContext).enqueue(workRequest)
     }
 }
