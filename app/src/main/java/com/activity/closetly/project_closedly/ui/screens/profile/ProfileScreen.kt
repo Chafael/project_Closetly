@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.activity.closetly.project_closedly.model.ProfileState
+import com.activity.closetly.project_closedly.ui.components.CustomDialog
+import com.activity.closetly.project_closedly.ui.components.DialogType
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfileViewModel
 
 private val PrimaryBrown = Color(0xFF705840)
@@ -29,6 +31,7 @@ private val SecondaryGray = Color(0xFF6B7280)
 private val BackgroundGray = Color(0xFFFAFAFA)
 private val LightGray = Color(0xFFF5F5F5)
 private val BorderBrown = Color(0xFFD4C4B0)
+private val ErrorRed = Color(0xFFDC2626)
 
 @Composable
 fun ProfileScreen(
@@ -37,18 +40,33 @@ fun ProfileScreen(
     onLogout: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    
+    var showEmailSuccessDialog by remember { mutableStateOf(false) }
+    var showEmailErrorDialog by remember { mutableStateOf(false) }
+    var showPasswordSuccessDialog by remember { mutableStateOf(false) }
+    var showPasswordErrorDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.emailUpdateState) {
-        if (uiState.emailUpdateState is ProfileState.Success) {
-            kotlinx.coroutines.delay(2000)
-            viewModel.dismissEmailUpdateState()
+        when (uiState.emailUpdateState) {
+            is ProfileState.Success -> {
+                showEmailSuccessDialog = true
+            }
+            is ProfileState.Error -> {
+                showEmailErrorDialog = true
+            }
+            else -> {}
         }
     }
 
     LaunchedEffect(uiState.passwordUpdateState) {
-        if (uiState.passwordUpdateState is ProfileState.Success) {
-            kotlinx.coroutines.delay(2000)
-            viewModel.dismissPasswordUpdateState()
+        when (uiState.passwordUpdateState) {
+            is ProfileState.Success -> {
+                showPasswordSuccessDialog = true
+            }
+            is ProfileState.Error -> {
+                showPasswordErrorDialog = true
+            }
+            else -> {}
         }
     }
 
@@ -101,7 +119,8 @@ fun ProfileScreen(
                 onEmailPasswordChange = viewModel::updateEmailPassword,
                 showEmailPassword = uiState.showEmailPassword,
                 onToggleEmailPassword = viewModel::toggleEmailPasswordVisibility,
-                updateState = uiState.emailUpdateState
+                hasNewEmailError = uiState.hasNewEmailError,
+                hasEmailPasswordError = uiState.hasEmailPasswordError
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -122,7 +141,9 @@ fun ProfileScreen(
                 hasMinLength = viewModel.hasMinimumLength(uiState.newPassword),
                 hasUpperCase = viewModel.hasUpperCase(uiState.newPassword),
                 hasNumber = viewModel.hasNumber(uiState.newPassword),
-                updateState = uiState.passwordUpdateState
+                hasCurrentPasswordError = uiState.hasCurrentPasswordError,
+                hasNewPasswordError = uiState.hasNewPasswordError,
+                hasConfirmPasswordError = uiState.hasConfirmPasswordError
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -153,6 +174,58 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
         }
+    }
+
+    if (showEmailSuccessDialog) {
+        CustomDialog(
+            type = DialogType.SUCCESS,
+            title = "Confirmación",
+            message = "La acción se completó exitosamente",
+            dismissButtonText = "Cerrar",
+            onDismiss = {
+                showEmailSuccessDialog = false
+                viewModel.dismissEmailUpdateState()
+            }
+        )
+    }
+
+    if (showEmailErrorDialog) {
+        CustomDialog(
+            type = DialogType.ERROR,
+            title = "Error",
+            message = "No se pudo completar la acción",
+            dismissButtonText = "Cerrar",
+            onDismiss = {
+                showEmailErrorDialog = false
+                viewModel.dismissEmailUpdateState()
+            }
+        )
+    }
+
+    if (showPasswordSuccessDialog) {
+        CustomDialog(
+            type = DialogType.SUCCESS,
+            title = "Confirmación",
+            message = "La acción se completó exitosamente",
+            dismissButtonText = "Cerrar",
+            onDismiss = {
+                showPasswordSuccessDialog = false
+                viewModel.dismissPasswordUpdateState()
+            }
+        )
+    }
+
+    if (showPasswordErrorDialog) {
+        CustomDialog(
+            type = DialogType.ERROR,
+            title = "Error",
+            message = "No se pudo completar la acción",
+            dismissButtonText = "Cerrar",
+            onDismiss = {
+                showPasswordErrorDialog = false
+                viewModel.dismissPasswordUpdateState()
+            }
+        )
     }
 }
 
@@ -233,7 +306,8 @@ private fun EmailSection(
     onEmailPasswordChange: (String) -> Unit,
     showEmailPassword: Boolean,
     onToggleEmailPassword: () -> Unit,
-    updateState: ProfileState
+    hasNewEmailError: Boolean,
+    hasEmailPasswordError: Boolean
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Text(
@@ -301,8 +375,8 @@ private fun EmailSection(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
-                focusedBorderColor = LightBrown,
-                unfocusedBorderColor = BorderBrown,
+                focusedBorderColor = if (hasNewEmailError) ErrorRed else LightBrown,
+                unfocusedBorderColor = if (hasNewEmailError) ErrorRed else BorderBrown,
                 focusedTextColor = LightBrown,
                 unfocusedTextColor = LightBrown
             )
@@ -328,8 +402,8 @@ private fun EmailSection(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
-                focusedBorderColor = LightBrown,
-                unfocusedBorderColor = BorderBrown,
+                focusedBorderColor = if (hasEmailPasswordError) ErrorRed else LightBrown,
+                unfocusedBorderColor = if (hasEmailPasswordError) ErrorRed else BorderBrown,
                 focusedTextColor = LightBrown,
                 unfocusedTextColor = LightBrown
             ),
@@ -343,24 +417,6 @@ private fun EmailSection(
                 }
             }
         )
-
-        if (updateState is ProfileState.Error) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = updateState.message,
-                fontSize = 12.sp,
-                color = Color.Red
-            )
-        }
-
-        if (updateState is ProfileState.Success) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = updateState.message,
-                fontSize = 12.sp,
-                color = Color(0xFF10B981)
-            )
-        }
     }
 }
 
@@ -381,7 +437,9 @@ private fun PasswordSection(
     hasMinLength: Boolean,
     hasUpperCase: Boolean,
     hasNumber: Boolean,
-    updateState: ProfileState
+    hasCurrentPasswordError: Boolean,
+    hasNewPasswordError: Boolean,
+    hasConfirmPasswordError: Boolean
 ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Text(
@@ -419,8 +477,8 @@ private fun PasswordSection(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
-                focusedBorderColor = LightBrown,
-                unfocusedBorderColor = BorderBrown,
+                focusedBorderColor = if (hasCurrentPasswordError) ErrorRed else LightBrown,
+                unfocusedBorderColor = if (hasCurrentPasswordError) ErrorRed else BorderBrown,
                 focusedTextColor = LightBrown,
                 unfocusedTextColor = LightBrown
             ),
@@ -455,8 +513,8 @@ private fun PasswordSection(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
-                focusedBorderColor = LightBrown,
-                unfocusedBorderColor = BorderBrown,
+                focusedBorderColor = if (hasNewPasswordError) ErrorRed else LightBrown,
+                unfocusedBorderColor = if (hasNewPasswordError) ErrorRed else BorderBrown,
                 focusedTextColor = LightBrown,
                 unfocusedTextColor = LightBrown
             ),
@@ -491,8 +549,8 @@ private fun PasswordSection(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Color.White,
                 unfocusedContainerColor = Color.White,
-                focusedBorderColor = LightBrown,
-                unfocusedBorderColor = BorderBrown,
+                focusedBorderColor = if (hasConfirmPasswordError) ErrorRed else LightBrown,
+                unfocusedBorderColor = if (hasConfirmPasswordError) ErrorRed else BorderBrown,
                 focusedTextColor = LightBrown,
                 unfocusedTextColor = LightBrown
             ),
@@ -520,47 +578,33 @@ private fun PasswordSection(
 
         PasswordRequirement(
             text = "Mínimo 8 caracteres",
-            isMet = hasMinLength
+            isMet = hasMinLength,
+            showError = hasNewPasswordError && !hasMinLength
         )
 
         Spacer(modifier = Modifier.height(4.dp))
 
         PasswordRequirement(
             text = "Al menos una letra mayúscula",
-            isMet = hasUpperCase
+            isMet = hasUpperCase,
+            showError = hasNewPasswordError && !hasUpperCase
         )
 
         Spacer(modifier = Modifier.height(4.dp))
 
         PasswordRequirement(
             text = "Al menos un número",
-            isMet = hasNumber
+            isMet = hasNumber,
+            showError = hasNewPasswordError && !hasNumber
         )
-
-        if (updateState is ProfileState.Error) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = updateState.message,
-                fontSize = 12.sp,
-                color = Color.Red
-            )
-        }
-
-        if (updateState is ProfileState.Success) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = updateState.message,
-                fontSize = 12.sp,
-                color = Color(0xFF10B981)
-            )
-        }
     }
 }
 
 @Composable
 private fun PasswordRequirement(
     text: String,
-    isMet: Boolean
+    isMet: Boolean,
+    showError: Boolean = false
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -569,7 +613,7 @@ private fun PasswordRequirement(
         Icon(
             imageVector = if (isMet) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
             contentDescription = null,
-            tint = if (isMet) Color(0xFF10B981) else SecondaryGray,
+            tint = if (showError) ErrorRed else if (isMet) Color(0xFF10B981) else SecondaryGray,
             modifier = Modifier.size(16.dp)
         )
 
@@ -578,7 +622,7 @@ private fun PasswordRequirement(
         Text(
             text = text,
             fontSize = 12.sp,
-            color = if (isMet) Color(0xFF10B981) else SecondaryGray
+            color = if (showError) ErrorRed else if (isMet) Color(0xFF10B981) else SecondaryGray
         )
     }
 }

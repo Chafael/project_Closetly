@@ -67,23 +67,23 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun updateNewEmail(email: String) {
-        _uiState.update { it.copy(newEmail = email) }
+        _uiState.update { it.copy(newEmail = email, hasNewEmailError = false) }
     }
 
     fun updateEmailPassword(password: String) {
-        _uiState.update { it.copy(emailPassword = password) }
+        _uiState.update { it.copy(emailPassword = password, hasEmailPasswordError = false) }
     }
 
     fun updateCurrentPassword(password: String) {
-        _uiState.update { it.copy(currentPassword = password) }
+        _uiState.update { it.copy(currentPassword = password, hasCurrentPasswordError = false) }
     }
 
     fun updateNewPassword(password: String) {
-        _uiState.update { it.copy(newPassword = password) }
+        _uiState.update { it.copy(newPassword = password, hasNewPasswordError = false) }
     }
 
     fun updateConfirmPassword(password: String) {
-        _uiState.update { it.copy(confirmPassword = password) }
+        _uiState.update { it.copy(confirmPassword = password, hasConfirmPasswordError = false) }
     }
 
     fun toggleEmailPasswordVisibility() {
@@ -105,13 +105,30 @@ class ProfileViewModel @Inject constructor(
     fun updateEmail() {
         val state = _uiState.value
         
+        _uiState.update { 
+            it.copy(
+                hasNewEmailError = false,
+                hasEmailPasswordError = false
+            )
+        }
+        
         if (state.newEmail.isBlank()) {
-            _uiState.update { it.copy(emailUpdateState = ProfileState.Error("Ingresa un nuevo email")) }
+            _uiState.update { 
+                it.copy(
+                    emailUpdateState = ProfileState.Error("Ingresa un nuevo email"),
+                    hasNewEmailError = true
+                )
+            }
             return
         }
         
         if (state.emailPassword.isBlank()) {
-            _uiState.update { it.copy(emailUpdateState = ProfileState.Error("Ingresa tu contraseña actual")) }
+            _uiState.update { 
+                it.copy(
+                    emailUpdateState = ProfileState.Error("Ingresa tu contraseña actual"),
+                    hasEmailPasswordError = true
+                )
+            }
             return
         }
 
@@ -122,7 +139,7 @@ class ProfileViewModel @Inject constructor(
                 is AuthResult.Success -> {
                     _uiState.update { 
                         it.copy(
-                            emailUpdateState = ProfileState.Success("Email actualizado exitosamente"),
+                            emailUpdateState = ProfileState.Success("La acción se completó exitosamente"),
                             currentEmail = state.newEmail,
                             newEmail = "",
                             emailPassword = ""
@@ -132,7 +149,10 @@ class ProfileViewModel @Inject constructor(
                 }
                 is AuthResult.Error -> {
                     _uiState.update { 
-                        it.copy(emailUpdateState = ProfileState.Error(result.message))
+                        it.copy(
+                            emailUpdateState = ProfileState.Error("No se pudo completar la acción"),
+                            hasEmailPasswordError = true
+                        )
                     }
                 }
                 else -> {}
@@ -143,29 +163,62 @@ class ProfileViewModel @Inject constructor(
     fun updatePassword() {
         val state = _uiState.value
         
+        _uiState.update { 
+            it.copy(
+                hasCurrentPasswordError = false,
+                hasNewPasswordError = false,
+                hasConfirmPasswordError = false
+            )
+        }
+        
         if (state.currentPassword.isBlank()) {
-            _uiState.update { it.copy(passwordUpdateState = ProfileState.Error("Ingresa tu contraseña actual")) }
+            _uiState.update { 
+                it.copy(
+                    passwordUpdateState = ProfileState.Error("Ingresa tu contraseña actual"),
+                    hasCurrentPasswordError = true
+                )
+            }
             return
         }
         
         if (state.newPassword.isBlank()) {
-            _uiState.update { it.copy(passwordUpdateState = ProfileState.Error("Ingresa una nueva contraseña")) }
+            _uiState.update { 
+                it.copy(
+                    passwordUpdateState = ProfileState.Error("Ingresa una nueva contraseña"),
+                    hasNewPasswordError = true
+                )
+            }
             return
         }
         
         if (state.confirmPassword.isBlank()) {
-            _uiState.update { it.copy(passwordUpdateState = ProfileState.Error("Confirma tu nueva contraseña")) }
+            _uiState.update { 
+                it.copy(
+                    passwordUpdateState = ProfileState.Error("Confirma tu nueva contraseña"),
+                    hasConfirmPasswordError = true
+                )
+            }
             return
         }
         
         if (state.newPassword != state.confirmPassword) {
-            _uiState.update { it.copy(passwordUpdateState = ProfileState.Error("Las contraseñas no coinciden")) }
+            _uiState.update { 
+                it.copy(
+                    passwordUpdateState = ProfileState.Error("Las contraseñas no coinciden"),
+                    hasConfirmPasswordError = true
+                )
+            }
             return
         }
 
         val validationError = validatePassword(state.newPassword)
         if (validationError != null) {
-            _uiState.update { it.copy(passwordUpdateState = ProfileState.Error(validationError)) }
+            _uiState.update { 
+                it.copy(
+                    passwordUpdateState = ProfileState.Error(validationError),
+                    hasNewPasswordError = true
+                )
+            }
             return
         }
 
@@ -176,7 +229,7 @@ class ProfileViewModel @Inject constructor(
                 is AuthResult.Success -> {
                     _uiState.update { 
                         it.copy(
-                            passwordUpdateState = ProfileState.Success("Contraseña actualizada exitosamente"),
+                            passwordUpdateState = ProfileState.Success("La acción se completó exitosamente"),
                             currentPassword = "",
                             newPassword = "",
                             confirmPassword = ""
@@ -185,7 +238,10 @@ class ProfileViewModel @Inject constructor(
                 }
                 is AuthResult.Error -> {
                     _uiState.update { 
-                        it.copy(passwordUpdateState = ProfileState.Error(result.message))
+                        it.copy(
+                            passwordUpdateState = ProfileState.Error("No se pudo completar la acción"),
+                            hasCurrentPasswordError = true
+                        )
                     }
                 }
                 else -> {}

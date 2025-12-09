@@ -28,5 +28,10 @@ data class ProfileUiState(
     val showNewPassword: Boolean = false,
     val showConfirmPassword: Boolean = false,
     val emailUpdateState: ProfileState = ProfileState.Idle,
-    val passwordUpdateState: ProfileState = ProfileState.Idle
+    val passwordUpdateState: ProfileState = ProfileState.Idle,
+    val hasNewEmailError: Boolean = false,
+    val hasEmailPasswordError: Boolean = false,
+    val hasCurrentPasswordError: Boolean = false,
+    val hasNewPasswordError: Boolean = false,
+    val hasConfirmPasswordError: Boolean = false
 )
