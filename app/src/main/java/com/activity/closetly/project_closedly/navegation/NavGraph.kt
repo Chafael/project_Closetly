@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.activity.closetly.project_closedly.ui.login.LoginScreen
 import com.activity.closetly.project_closedly.ui.screens.auth.RegisterScreen
+import com.activity.closetly.project_closedly.ui.screens.profile.ProfilePhotoScreen
 import com.activity.closetly.project_closedly.ui.screens.profile.ProfileScreen
 import com.activity.closetly.project_closedly.ui.screens.success.GarmentSuccessScreen
 import com.activity.closetly.project_closedly.ui.screens.upload.UploadGarmentScreen
@@ -21,6 +22,7 @@ object Routes {
     const val UPLOAD_GARMENT = "upload_garment"
     const val GARMENT_SUCCESS = "garment_success"
     const val PROFILE = "profile"
+    const val PROFILE_PHOTO = "profile_photo"
 }
 
 @Composable
@@ -113,6 +115,19 @@ fun NavGraph(
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(0) { inclusive = true }
                     }
+                },
+                onNavigateToProfilePhoto = {
+                    navController.navigate(Routes.PROFILE_PHOTO)
+                }
+            )
+        }
+
+        composable(Routes.PROFILE_PHOTO) {
+            ProfilePhotoScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onPhotoUpdated = {
                 }
             )
         }

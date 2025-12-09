@@ -267,4 +267,23 @@ class FirebaseAuthService @Inject constructor(
             AuthResult.Error(e.localizedMessage ?: "Error al actualizar contraseña")
         }
     }
+
+    suspend fun updateProfilePhoto(photoUrl: String): AuthResult<Unit> {
+        return try {
+            val user = currentUser ?: return AuthResult.Error("No hay usuario autenticado")
+            
+            Log.d(TAG, "Actualizando foto de perfil")
+            
+            firestore.collection("users")
+                .document(user.uid)
+                .update("profilePhotoUrl", photoUrl)
+                .await()
+            
+            Log.d(TAG, "Foto de perfil actualizada exitosamente")
+            AuthResult.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al actualizar foto de perfil: ${e.message}", e)
+            AuthResult.Error(e.localizedMessage ?: "Error al actualizar foto de perfil")
+        }
+    }
 }

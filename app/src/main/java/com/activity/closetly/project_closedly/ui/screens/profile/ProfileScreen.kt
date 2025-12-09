@@ -1,6 +1,7 @@
 package com.activity.closetly.project_closedly.ui.screens.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -12,7 +13,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -20,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.activity.closetly.project_closedly.model.ProfileState
 import com.activity.closetly.project_closedly.ui.components.CustomDialog
 import com.activity.closetly.project_closedly.ui.components.DialogType
@@ -37,7 +41,8 @@ private val ErrorRed = Color(0xFFDC2626)
 fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onNavigateToProfilePhoto: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
@@ -84,7 +89,9 @@ fun ProfileScreen(
             UserProfileHeader(
                 username = uiState.userProfile?.username ?: "",
                 memberSince = viewModel.getMemberSinceText(),
-                userInitial = viewModel.getUserInitial()
+                userInitial = viewModel.getUserInitial(),
+                profilePhotoUrl = uiState.userProfile?.profilePhotoUrl ?: "",
+                onEditPhotoClick = onNavigateToProfilePhoto
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -254,7 +261,9 @@ private fun TopBar(onNavigateBack: () -> Unit) {
 private fun UserProfileHeader(
     username: String,
     memberSince: String,
-    userInitial: String
+    userInitial: String,
+    profilePhotoUrl: String,
+    onEditPhotoClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -263,18 +272,55 @@ private fun UserProfileHeader(
             .padding(bottom = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Surface(
+        Box(
             modifier = Modifier.size(80.dp),
-            shape = CircleShape,
-            color = LightBrown
+            contentAlignment = Alignment.BottomEnd
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text(
-                    text = userInitial,
-                    color = Color.White,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
+            if (profilePhotoUrl.isNotEmpty()) {
+                AsyncImage(
+                    model = profilePhotoUrl,
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .clickable(onClick = onEditPhotoClick),
+                    contentScale = ContentScale.Crop
                 )
+            } else {
+                Surface(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clickable(onClick = onEditPhotoClick),
+                    shape = CircleShape,
+                    color = LightBrown
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = userInitial,
+                            color = Color.White,
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+            
+            Surface(
+                modifier = Modifier.size(24.dp),
+                shape = CircleShape,
+                color = Color.White
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.clickable(onClick = onEditPhotoClick)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Editar foto",
+                        tint = PrimaryBrown,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
             }
         }
 

@@ -44,7 +44,8 @@ class ProfileViewModel @Inject constructor(
                         uid = data["uid"] as? String ?: "",
                         email = data["email"] as? String ?: "",
                         username = data["username"] as? String ?: "",
-                        createdAt = data["createdAt"] as? Long ?: 0L
+                        createdAt = data["createdAt"] as? Long ?: 0L,
+                        profilePhotoUrl = data["profilePhotoUrl"] as? String ?: ""
                     )
                     _uiState.update { 
                         it.copy(

@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -45,11 +46,17 @@ fun WardrobeScreen(
     val garments by wardrobeViewModel.garments.collectAsState()
     val garmentCount by wardrobeViewModel.garmentCount.collectAsState()
     val selectedCategory by wardrobeViewModel.selectedCategory.collectAsState()
+    val profilePhotoUrl by wardrobeViewModel.profilePhotoUrl.collectAsState()
+    val userInitial by wardrobeViewModel.userInitial.collectAsState()
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showSuccessDialog by remember { mutableStateOf(false) }
     var garmentToDelete by remember { mutableStateOf<GarmentEntity?>(null) }
     var showCategoryMenu by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        wardrobeViewModel.refreshProfile()
+    }
 
     Scaffold(
         containerColor = BackgroundGray,
@@ -72,7 +79,9 @@ fun WardrobeScreen(
             WardrobeTopBar(
                 garmentCount = garmentCount,
                 onSearchClick = { },
-                onProfileClick = onNavigateToProfile
+                onProfileClick = onNavigateToProfile,
+                profilePhotoUrl = profilePhotoUrl,
+                userInitial = userInitial
             )
 
             CategoryTabs(
@@ -157,7 +166,13 @@ private fun BottomNavigationBar(selectedTab: Int, onTabSelected: (Int) -> Unit) 
 }
 
 @Composable
-private fun WardrobeTopBar(garmentCount: Int, onSearchClick: () -> Unit, onProfileClick: () -> Unit) {
+private fun WardrobeTopBar(
+    garmentCount: Int,
+    onSearchClick: () -> Unit,
+    onProfileClick: () -> Unit,
+    profilePhotoUrl: String,
+    userInitial: String
+) {
     Row(
         modifier = Modifier.fillMaxWidth().background(Color.White).padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -171,13 +186,25 @@ private fun WardrobeTopBar(garmentCount: Int, onSearchClick: () -> Unit, onProfi
             IconButton(onClick = onSearchClick) {
                 Icon(Icons.Default.Search, "Buscar", tint = SecondaryGray)
             }
-            Surface(
-                modifier = Modifier.size(40.dp).clickable(onClick = onProfileClick),
-                shape = CircleShape,
-                color = LightBrown
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text("A", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            if (profilePhotoUrl.isNotEmpty()) {
+                AsyncImage(
+                    model = profilePhotoUrl,
+                    contentDescription = "Foto de perfil",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .clickable(onClick = onProfileClick),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Surface(
+                    modifier = Modifier.size(40.dp).clickable(onClick = onProfileClick),
+                    shape = CircleShape,
+                    color = LightBrown
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(userInitial, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    }
                 }
             }
         }
