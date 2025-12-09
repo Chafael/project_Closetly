@@ -14,6 +14,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.activity.closetly.project_closedly.navegation.NavGraph
 import com.activity.closetly.project_closedly.ui.theme.Project_ClosetlyTheme
 import com.activity.closetly.project_closedly.ui.viewmodel.AuthStateViewModel
@@ -59,11 +61,11 @@ class MainActivity : ComponentActivity() {
 
     private fun startNotificationWork() {
         try {
-            val workRequest = androidx.work.OneTimeWorkRequest.Builder(NotificationWorker::class.java)
+            val workRequest = OneTimeWorkRequest.Builder(NotificationWorker::class.java)
                 .setInitialDelay(30, TimeUnit.SECONDS)
                 .build()
             
-            androidx.work.WorkManager.getInstance(applicationContext).enqueue(workRequest)
+            WorkManager.getInstance(applicationContext).enqueue(workRequest)
         } catch (e: Exception) {
             e.printStackTrace()
         }
