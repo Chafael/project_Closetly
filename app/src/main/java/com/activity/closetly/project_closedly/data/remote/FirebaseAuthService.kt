@@ -151,4 +151,94 @@ class FirebaseAuthService @Inject constructor(
         Log.d(TAG, "Usuario actual: ${currentUser?.email ?: "Ninguno"}")
 
     }
+
+    suspend fun getUserData(): AuthResult<Map<String, Any>> {
+        return try {
+            val user = currentUser ?: return AuthResult.Error("No hay usuario autenticado")
+            
+            Log.d(TAG, "Obteniendo datos del usuario: ${user.uid}")
+            
+            val document = firestore.collection("users")
+                .document(user.uid)
+                .get()
+                .await()
+            
+            if (document.exists()) {
+                val userData = document.data ?: return AuthResult.Error("Datos de usuario vacíos")
+                Log.d(TAG, "Datos obtenidos exitosamente")
+                AuthResult.Success(userData)
+            } else {
+                Log.e(TAG, "Documento de usuario no encontrado")
+                AuthResult.Error("Usuario no encontrado en la base de datos")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al obtener datos: ${e.message}", e)
+            AuthResult.Error(e.localizedMessage ?: "Error al obtener datos")
+        }
+    }
+
+    suspend fun reauthenticateUser(password: String): AuthResult<Unit> {
+        return try {
+            val user = currentUser ?: return AuthResult.Error("No hay usuario autenticado")
+            val email = user.email ?: return AuthResult.Error("Email no disponible")
+            
+            Log.d(TAG, "Reautenticando usuario: $email")
+            
+            val credential = com.google.firebase.auth.EmailAuthProvider.getCredential(email, password)
+            user.reauthenticate(credential).await()
+            
+            Log.d(TAG, "Reautenticación exitosa")
+            AuthResult.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error en reautenticación: ${e.message}", e)
+            AuthResult.Error(e.localizedMessage ?: "Contraseña incorrecta")
+        }
+    }
+
+    suspend fun updateUserEmail(newEmail: String, currentPassword: String): AuthResult<Unit> {
+        return try {
+            val user = currentUser ?: return AuthResult.Error("No hay usuario autenticado")
+            
+            Log.d(TAG, "Actualizando email a: $newEmail")
+            
+            val reauthResult = reauthenticateUser(currentPassword)
+            if (reauthResult is AuthResult.Error) {
+                return reauthResult
+            }
+            
+            user.verifyBeforeUpdateEmail(newEmail).await()
+            
+            firestore.collection("users")
+                .document(user.uid)
+                .update("email", newEmail)
+                .await()
+            
+            Log.d(TAG, "Email actualizado exitosamente")
+            AuthResult.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al actualizar email: ${e.message}", e)
+            AuthResult.Error(e.localizedMessage ?: "Error al actualizar email")
+        }
+    }
+
+    suspend fun updateUserPassword(currentPassword: String, newPassword: String): AuthResult<Unit> {
+        return try {
+            val user = currentUser ?: return AuthResult.Error("No hay usuario autenticado")
+            
+            Log.d(TAG, "Actualizando contraseña")
+            
+            val reauthResult = reauthenticateUser(currentPassword)
+            if (reauthResult is AuthResult.Error) {
+                return reauthResult
+            }
+            
+            user.updatePassword(newPassword).await()
+            
+            Log.d(TAG, "Contraseña actualizada exitosamente")
+            AuthResult.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al actualizar contraseña: ${e.message}", e)
+            AuthResult.Error(e.localizedMessage ?: "Error al actualizar contraseña")
+        }
+    }
 }
