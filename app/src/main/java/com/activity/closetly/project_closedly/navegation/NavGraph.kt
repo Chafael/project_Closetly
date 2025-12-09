@@ -13,6 +13,7 @@ import com.activity.closetly.project_closedly.ui.screens.success.GarmentSuccessS
 import com.activity.closetly.project_closedly.ui.screens.upload.UploadGarmentScreen
 import com.activity.closetly.project_closedly.ui.screens.wardrobe.WardrobeScreen
 import com.activity.closetly.project_closedly.ui.screens.welcome.WelcomeScreen
+import com.activity.closetly.project_closedly.ui.screens.splash.SplashScreen
 
 object Routes {
     const val LOGIN = "login"
@@ -23,17 +24,30 @@ object Routes {
     const val GARMENT_SUCCESS = "garment_success"
     const val PROFILE = "profile"
     const val PROFILE_PHOTO = "profile_photo"
+    const val SPLASH = "splash"
 }
 
 @Composable
 fun NavGraph(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Routes.LOGIN
+    startDestination: String = Routes.SPLASH,
+    isLoggedIn: Boolean = false
 ) {
     NavHost(
         navController = navController,
         startDestination = startDestination
     ) {
+        composable(Routes.SPLASH) {
+            SplashScreen(
+                onSplashFinished = {
+                    val targetDestination = if (isLoggedIn) Routes.WARDROBE else Routes.LOGIN
+                    navController.navigate(targetDestination) {
+                        popUpTo(Routes.SPLASH) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable(Routes.LOGIN) {
             LoginScreen(
                 onNavigateToRegister = {

@@ -30,9 +30,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val authStateViewModel: AuthStateViewModel = hiltViewModel()
                     val isLoggedIn by authStateViewModel.isUserLoggedIn.collectAsState()
-                    val startDestination = if (isLoggedIn) Routes.WARDROBE else Routes.LOGIN
 
-                    NavGraph(startDestination = startDestination)
+                    NavGraph(isLoggedIn = isLoggedIn)
                 }
             }
         }
