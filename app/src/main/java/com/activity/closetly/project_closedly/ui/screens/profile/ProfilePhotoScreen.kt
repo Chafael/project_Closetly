@@ -33,6 +33,7 @@ import com.activity.closetly.project_closedly.ui.components.DialogType
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfilePhotoState
 import com.activity.closetly.project_closedly.ui.viewmodel.ProfilePhotoViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import java.io.File
 
@@ -145,12 +146,13 @@ fun ProfilePhotoScreen(
                 onClick = {
                     if (cameraPermission.status.isGranted) {
                         val photoFile = File(context.cacheDir, "profile_photo_${System.currentTimeMillis()}.jpg")
-                        tempImageUri = FileProvider.getUriForFile(
+                        val uri = FileProvider.getUriForFile(
                             context,
                             "${context.packageName}.provider",
                             photoFile
                         )
-                        cameraLauncher.launch(tempImageUri)
+                        tempImageUri = uri
+                        cameraLauncher.launch(uri)
                     } else {
                         cameraPermission.launchPermissionRequest()
                     }
