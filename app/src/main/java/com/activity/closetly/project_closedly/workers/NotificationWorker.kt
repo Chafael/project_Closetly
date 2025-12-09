@@ -42,6 +42,16 @@ class NotificationWorker(
             return
         }
 
+        val messages = listOf(
+            "No olvides armar tu outfit de hoy",
+            "¿Ya elegiste qué ponerte? Tu estilo espera",
+            "Hora de brillar: Organiza tu look del día",
+            "Tu armario tiene infinitas posibilidades para hoy",
+            "Inspírate y crea tu outfit perfecto ahora",
+            "Dale vida a tu estilo hoy con un nuevo look"
+        )
+        val message = messages.random()
+
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
@@ -52,7 +62,7 @@ class NotificationWorker(
         val builder = NotificationCompat.Builder(context, "closetly_reminders")
             .setSmallIcon(R.drawable.app_logo)
             .setContentTitle("Closetly")
-            .setContentText("No olvides armar tu outfit de hoy")
+            .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
