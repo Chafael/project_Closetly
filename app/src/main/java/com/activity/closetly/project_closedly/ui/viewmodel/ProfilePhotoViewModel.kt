@@ -1,6 +1,5 @@
 package com.activity.closetly.project_closedly.ui.viewmodel
 
-import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -8,8 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.activity.closetly.project_closedly.data.remote.AuthResult
 import com.activity.closetly.project_closedly.data.remote.CloudinaryService
 import com.activity.closetly.project_closedly.data.remote.FirebaseAuthService
+import com.activity.closetly.project_closedly.data.remote.UploadResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,7 +34,6 @@ data class ProfilePhotoUiState(
 
 @HiltViewModel
 class ProfilePhotoViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val authService: FirebaseAuthService,
     private val cloudinaryService: CloudinaryService
 ) : ViewModel() {
@@ -90,24 +88,41 @@ class ProfilePhotoViewModel @Inject constructor(
             _uiState.update { it.copy(uploadState = ProfilePhotoState.Loading) }
             
             try {
-                val photoUrl = cloudinaryService.uploadImage(context, imageUri)
-                
-                when (val result = authService.updateProfilePhoto(photoUrl)) {
-                    is AuthResult.Success -> {
-                        _uiState.update { 
-                            it.copy(
-                                uploadState = ProfilePhotoState.Success("La acción se completó exitosamente"),
-                                currentPhotoUrl = photoUrl
-                            )
-                        }
-                        Log.d(TAG, "Foto de perfil subida exitosamente")
+                val currentUser = authService.currentUser
+                if (currentUser == null) {
+                    _uiState.update { 
+                        it.copy(uploadState = ProfilePhotoState.Error("No se pudo completar la acción"))
                     }
-                    is AuthResult.Error -> {
+                    return@launch
+                }
+
+                when (val uploadResult = cloudinaryService.uploadImage(imageUri, currentUser.uid)) {
+                    is UploadResult.Success -> {
+                        val photoUrl = uploadResult.data
+                        
+                        when (val result = authService.updateProfilePhoto(photoUrl)) {
+                            is AuthResult.Success -> {
+                                _uiState.update { 
+                                    it.copy(
+                                        uploadState = ProfilePhotoState.Success("La acción se completó exitosamente"),
+                                        currentPhotoUrl = photoUrl
+                                    )
+                                }
+                                Log.d(TAG, "Foto de perfil subida exitosamente")
+                            }
+                            is AuthResult.Error -> {
+                                _uiState.update { 
+                                    it.copy(uploadState = ProfilePhotoState.Error("No se pudo completar la acción"))
+                                }
+                            }
+                            else -> {}
+                        }
+                    }
+                    is UploadResult.Error -> {
                         _uiState.update { 
                             it.copy(uploadState = ProfilePhotoState.Error("No se pudo completar la acción"))
                         }
                     }
-                    else -> {}
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error al subir foto: ${e.message}", e)

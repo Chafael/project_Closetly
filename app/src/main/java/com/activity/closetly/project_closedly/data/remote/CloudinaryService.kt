@@ -49,7 +49,7 @@ class CloudinaryService @Inject constructor(
 
                 MediaManager.get()
                     .upload(imageUri)
-                    .unsigned("closetly_preset") // Crear este preset en Cloudinary
+                    .unsigned("closetly_preset")
                     .option("folder", "garments/$userId")
                     .option("resource_type", "image")
                     .callback(object : UploadCallback {

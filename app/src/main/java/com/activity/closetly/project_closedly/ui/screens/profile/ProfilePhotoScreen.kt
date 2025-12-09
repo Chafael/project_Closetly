@@ -143,7 +143,7 @@ fun ProfilePhotoScreen(
                 title = "Tomar Foto",
                 description = "Usa la cámara para una foto nueva",
                 onClick = {
-                    if (cameraPermission.hasPermission) {
+                    if (cameraPermission.status.isGranted) {
                         val photoFile = File(context.cacheDir, "profile_photo_${System.currentTimeMillis()}.jpg")
                         tempImageUri = FileProvider.getUriForFile(
                             context,
