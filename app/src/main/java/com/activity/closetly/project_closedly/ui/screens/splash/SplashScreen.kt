@@ -26,7 +26,7 @@ import com.activity.closetly.project_closedly.R
 import kotlinx.coroutines.delay
 
 private val PrimaryBrown = Color(0xFF705840)
-private val BackgroundColor = Color(0xFFFAF9F6)
+private val BackgroundColor = Color(0xFFF5F1EA)
 
 @Composable
 fun SplashScreen(
