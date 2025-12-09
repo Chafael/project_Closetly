@@ -45,4 +45,8 @@ class GarmentRepository @Inject constructor(
     suspend fun updateFavoriteStatus(garmentId: String, isFavorite: Boolean) {
         garmentDao.updateFavoriteStatus(garmentId, isFavorite)
     }
+
+    fun getGarmentsByIds(garmentIds: List<String>): Flow<List<GarmentEntity>> {
+        return garmentDao.getGarmentsByIds(garmentIds)
+    }
 }

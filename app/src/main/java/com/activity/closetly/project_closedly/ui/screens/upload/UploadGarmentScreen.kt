@@ -27,6 +27,16 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.activity.closetly.project_closedly.ui.viewmodel.UploadGarmentViewModel
+import androidx.core.content.FileProvider
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import android.widget.Toast
 
 private val PrimaryText = Color(0xFF705840)
 private val SecondaryText = Color(0xFF6B7280)
@@ -91,7 +101,8 @@ fun UploadGarmentScreen(
         ) {
             ImagePickerSection(
                 imageUri = uiState.imageUri,
-                onGalleryClick = { galleryLauncher.launch("image/*") }
+                onGalleryClick = { galleryLauncher.launch("image/*") },
+                onImageCaptured = { uri -> uploadViewModel.onImageSelected(uri) }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -157,8 +168,32 @@ fun UploadGarmentScreen(
 @Composable
 private fun ImagePickerSection(
     imageUri: Uri?,
-    onGalleryClick: () -> Unit
+    onGalleryClick: () -> Unit,
+    onImageCaptured: (Uri) -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
+    
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && tempPhotoUri != null) {
+            onImageCaptured(tempPhotoUri!!)
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            val uri = createImageFile(context)
+            tempPhotoUri = uri
+            cameraLauncher.launch(uri)
+        } else {
+            Toast.makeText(context, "Permiso de cámara necesario", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -224,7 +259,15 @@ private fun ImagePickerSection(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
-                    onClick = { /* TODO: Implementar cámara */ },
+                    onClick = { 
+                        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                            val uri = createImageFile(context)
+                            tempPhotoUri = uri
+                            cameraLauncher.launch(uri)
+                        } else {
+                            permissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -251,6 +294,22 @@ private fun ImagePickerSection(
             }
         }
     }
+}
+
+private fun createImageFile(context: Context): Uri {
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    val imageFileName = "JPEG_" + timeStamp + "_"
+    val storageDir = context.cacheDir
+    val image = File.createTempFile(
+        imageFileName,
+        ".jpg",
+        storageDir
+    )
+    return FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.provider",
+        image
+    )
 }
 
 @Composable

@@ -32,4 +32,7 @@ interface GarmentDao {
 
     @Query("UPDATE garments SET isFavorite = :isFavorite WHERE id = :garmentId")
     suspend fun updateFavoriteStatus(garmentId: String, isFavorite: Boolean)
+
+    @Query("SELECT * FROM garments WHERE id IN (:garmentIds)")
+    fun getGarmentsByIds(garmentIds: List<String>): Flow<List<GarmentEntity>>
 }

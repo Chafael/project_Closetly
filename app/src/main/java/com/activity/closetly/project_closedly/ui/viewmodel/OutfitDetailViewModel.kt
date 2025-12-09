@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 @HiltViewModel
 class OutfitDetailViewModel @Inject constructor(
@@ -34,6 +35,14 @@ class OutfitDetailViewModel @Inject constructor(
 
     fun loadOutfit(outfitId: String) {
         viewModelScope.launch {
+            // Load outfit directly (since Repository returns Entity?, maybe we should have a Flow for it too ideally, but let's stick to what we have or adapt)
+            // Ideally, we want to observe the Outfit to get updates.
+            // Repository methods: getAllOutfitsByUser, getOutfitById (suspend)
+            // If getOutfitById is suspend, we won't see changes to the Outfit unless we reload.
+            // However, we are mainly interested in Garment changes triggering Outfit updates.
+            
+            // Let's keep fetching outfit once, but if we update rating, we might need to reflect that locals.
+            
             val loadedOutfit = outfitRepository.getOutfitById(outfitId)
             _outfit.value = loadedOutfit
 
@@ -45,12 +54,36 @@ class OutfitDetailViewModel @Inject constructor(
                     emptyList()
                 }
 
-                // Cargar todas las prendas del usuario
-                val allGarments = garmentRepository.getAllGarmentsByUser(outfit.userId).first()
+                if (garmentIds.isNotEmpty()) {
+                    garmentRepository.getGarmentsByIds(garmentIds).collect { updatedGarments ->
+                        _garments.value = updatedGarments
+                        
 
-                // Filtrar solo las prendas que están en el outfit
-                val outfitGarments = allGarments.filter { it.id in garmentIds }
-                _garments.value = outfitGarments
+                        // Calculate rating
+                        if (updatedGarments.isNotEmpty()) {
+                            val validRatings = updatedGarments.filter { it.rating > 0 }
+                            val averageRating = if (validRatings.isNotEmpty()) {
+                                validRatings.map { it.rating }.average().roundToInt()
+                            } else {
+                                0
+                            }
+                            
+                            // If rating changed, update DB and local state
+                            if (outfit.rating != averageRating) {
+                                val updatedOutfit = outfit.copy(rating = averageRating, updatedAt = System.currentTimeMillis())
+                                try {
+                                    outfitRepository.updateRating(outfit.id, averageRating)
+                                    // Also update local state so UI updates immediately
+                                    _outfit.value = updatedOutfit
+                                } catch (e: Exception) {
+                                    // Handle error silently or log
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    _garments.value = emptyList()
+                }
             }
         }
     }
@@ -60,6 +93,18 @@ class OutfitDetailViewModel @Inject constructor(
             _outfit.value?.let { outfit ->
                 outfitRepository.deleteOutfit(outfit)
                 _deletionSuccess.emit(true)
+            }
+        }
+    }
+
+    fun saveGarmentRating(garmentId: String, rating: Int) {
+        viewModelScope.launch {
+            val currentGarments = _garments.value
+            val garment = currentGarments.find { it.id == garmentId }
+            garment?.let {
+                val updatedGarment = it.copy(rating = rating, updatedAt = System.currentTimeMillis())
+                garmentRepository.updateGarment(updatedGarment)
+                // Flow collection in loadOutfit will automatically pick up this change and update local state + outfit rating
             }
         }
     }

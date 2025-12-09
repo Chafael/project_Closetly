@@ -46,6 +46,8 @@ fun OutfitDetailScreen(
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
+    // We will use this to track which garment is being rated. If null, no dialog.
+    var selectedGarmentForRating by remember { mutableStateOf<GarmentEntity?>(null) }
 
     LaunchedEffect(outfitId) {
         viewModel.loadOutfit(outfitId)
@@ -95,6 +97,9 @@ fun OutfitDetailScreen(
 
                 GarmentsPreviewSection(
                     garments = garments,
+                    onGarmentClick = { garment ->
+                        selectedGarmentForRating = garment
+                    },
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
 
@@ -119,20 +124,6 @@ fun OutfitDetailScreen(
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
-
-                OptionItem(
-                    icon = Icons.Default.Edit,
-                    iconColor = LightBrown,
-                    title = "Puntuar Prenda",
-                    subtitle = "Califica las prendas de este outfit",
-                    onClick = {
-                        if (garments.isNotEmpty()) {
-                            onNavigateToRateGarment(garments.first().id)
-                        }
-                    }
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 OptionItem(
                     icon = Icons.Default.Delete,
@@ -192,6 +183,105 @@ fun OutfitDetailScreen(
             }
         )
     }
+
+    selectedGarmentForRating?.let { garment ->
+        RateGarmentDialog(
+            garment = garment,
+            onDismiss = { selectedGarmentForRating = null },
+            onSave = { rating ->
+                viewModel.saveGarmentRating(garment.id, rating)
+                selectedGarmentForRating = null
+            }
+        )
+    }
+}
+
+@Composable
+private fun RateGarmentDialog(
+    garment: GarmentEntity,
+    onDismiss: () -> Unit,
+    onSave: (Int) -> Unit
+) {
+    var currentRating by remember { mutableStateOf(garment.rating) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                "Calificar ${garment.name}",
+                fontWeight = FontWeight.Bold,
+                color = PrimaryBrown,
+                fontSize = 18.sp
+            )
+        },
+        text = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Circular image
+                Surface(
+                    modifier = Modifier.size(100.dp),
+                    shape = androidx.compose.foundation.shape.CircleShape,
+                    color = LightBrown.copy(alpha = 0.2f)
+                ) {
+                   AsyncImage(
+                        model = garment.imageUrl,
+                        contentDescription = garment.name,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        error = androidx.compose.ui.graphics.vector.rememberVectorPainter(Icons.Default.BrokenImage)
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Stars
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    repeat(5) { index ->
+                        Icon(
+                            imageVector = if (index < currentRating) Icons.Default.Star else Icons.Default.StarOutline,
+                            contentDescription = "Estrella ${index + 1}",
+                            tint = if (index < currentRating) StarYellow else SecondaryGray.copy(alpha = 0.3f),
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clickable { currentRating = index + 1 }
+                                .padding(2.dp)
+                        )
+                    }
+                }
+                
+                 Spacer(modifier = Modifier.height(8.dp))
+                 
+                 Text(
+                    text = when (currentRating) {
+                        0 -> "Toca las estrellas para calificar"
+                        else -> "${currentRating} estrella${if (currentRating > 1) "s" else ""}"
+                    },
+                    fontSize = 12.sp,
+                    color = SecondaryGray
+                 )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSave(currentRating) },
+                colors = ButtonDefaults.buttonColors(containerColor = LightBrown)
+            ) {
+                Text("Guardar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar", color = SecondaryGray)
+            }
+        },
+        containerColor = Color.White,
+        shape = RoundedCornerShape(16.dp)
+    )
 }
 
 @Composable
@@ -223,6 +313,7 @@ private fun BottomNavigationBar(selectedTab: Int, onTabSelected: (Int) -> Unit) 
 @Composable
 private fun GarmentsPreviewSection(
     garments: List<GarmentEntity>,
+    onGarmentClick: (GarmentEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -243,33 +334,94 @@ private fun GarmentsPreviewSection(
                     color = SecondaryGray
                 )
             } else {
-                garments.forEach { garment ->
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        color = LightBrown
+                Text(
+                    text = "Toca una prenda para calificarla",
+                    fontSize = 12.sp,
+                    color = SecondaryGray,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                
+                // Display in rows of 2
+                garments.chunked(2).forEach { rowGarments ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            AsyncImage(
-                                model = garment.imageUrl,
-                                contentDescription = garment.name,
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
-                            Text(
-                                text = garment.name,
-                                color = Color.White,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
+                        rowGarments.forEach { garment ->
+                            Surface(
                                 modifier = Modifier
-                                    .background(PrimaryBrown.copy(alpha = 0.8f), RoundedCornerShape(8.dp))
-                                    .padding(horizontal = 12.dp, vertical = 6.dp)
-                            )
+                                    .weight(1f)
+                                    .height(150.dp)
+                                    .clickable { onGarmentClick(garment) },
+                                shape = RoundedCornerShape(12.dp),
+                                color = LightBrown.copy(alpha = 0.1f) // Lighter background for images
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    AsyncImage(
+                                        model = garment.imageUrl,
+                                        contentDescription = garment.name,
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop,
+                                        error = androidx.compose.ui.graphics.vector.rememberVectorPainter(Icons.Default.BrokenImage) // Fallback
+                                    )
+                                    
+                                    // Rating indicator (small star) if rated
+                                    if (garment.rating > 0) {
+                                        Surface(
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .padding(8.dp),
+                                            color = Color.White.copy(alpha = 0.9f),
+                                            shape = androidx.compose.foundation.shape.CircleShape
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Star,
+                                                    contentDescription = null,
+                                                    tint = StarYellow,
+                                                    modifier = Modifier.size(12.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(2.dp))
+                                                Text(
+                                                    text = garment.rating.toString(),
+                                                    fontSize = 10.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = PrimaryBrown
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                    // Overlay with name at bottom
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(8.dp),
+                                        contentAlignment = Alignment.BottomStart
+                                    ) {
+                                        Text(
+                                            text = garment.name,
+                                            color = Color.White,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            lineHeight = 14.sp,
+                                            modifier = Modifier
+                                                .background(PrimaryBrown.copy(alpha = 0.8f), RoundedCornerShape(4.dp))
+                                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        // Fill empty space if row has only 1 item
+                        if (rowGarments.size == 1) {
+                            Spacer(modifier = Modifier.weight(1f))
                         }
                     }
-                    if (garment != garments.last()) {
+                    if (rowGarments != garments.chunked(2).last()) {
                         Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
