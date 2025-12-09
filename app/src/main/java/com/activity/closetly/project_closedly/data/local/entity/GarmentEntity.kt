@@ -15,6 +15,7 @@ data class GarmentEntity(
     val brand: String?,
     val season: String?,
     val imageUrl: String,
+    val rating: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
     val isFavorite: Boolean = false

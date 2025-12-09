@@ -18,6 +18,9 @@ interface GarmentDao {
     @Query("SELECT COUNT(*) FROM garments WHERE userId = :userId")
     fun getGarmentCount(userId: String): Flow<Int>
 
+    @Query("SELECT * FROM garments WHERE id = :garmentId")
+    suspend fun getGarmentById(garmentId: String): GarmentEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGarment(garment: GarmentEntity)
 

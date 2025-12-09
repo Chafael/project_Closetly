@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import javax.inject.Inject
@@ -44,11 +45,12 @@ class OutfitDetailViewModel @Inject constructor(
                     emptyList()
                 }
 
-                val garmentsList = mutableListOf<GarmentEntity>()
-                garmentIds.forEach { garmentId ->
+                // Cargar todas las prendas del usuario
+                val allGarments = garmentRepository.getAllGarmentsByUser(outfit.userId).first()
 
-                }
-                _garments.value = garmentsList
+                // Filtrar solo las prendas que están en el outfit
+                val outfitGarments = allGarments.filter { it.id in garmentIds }
+                _garments.value = outfitGarments
             }
         }
     }

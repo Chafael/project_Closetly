@@ -26,6 +26,10 @@ class GarmentRepository @Inject constructor(
         return garmentDao.getGarmentCount(userId)
     }
 
+    suspend fun getGarmentById(garmentId: String): GarmentEntity? {
+        return garmentDao.getGarmentById(garmentId)
+    }
+
     suspend fun insertGarment(garment: GarmentEntity) {
         garmentDao.insertGarment(garment)
     }

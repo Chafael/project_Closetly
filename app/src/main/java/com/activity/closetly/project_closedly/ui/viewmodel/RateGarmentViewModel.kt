@@ -22,8 +22,15 @@ class RateGarmentViewModel @Inject constructor(
     private val _selectedRating = MutableStateFlow(0)
     val selectedRating: StateFlow<Int> = _selectedRating.asStateFlow()
 
+    private val _isSaving = MutableStateFlow(false)
+    val isSaving: StateFlow<Boolean> = _isSaving.asStateFlow()
+
     fun loadGarment(garmentId: String) {
         viewModelScope.launch {
+            val loadedGarment = garmentRepository.getGarmentById(garmentId)
+            _garment.value = loadedGarment
+            // Cargar el rating actual de la prenda
+            _selectedRating.value = loadedGarment?.rating ?: 0
         }
     }
 
@@ -31,8 +38,26 @@ class RateGarmentViewModel @Inject constructor(
         _selectedRating.value = rating
     }
 
-    fun saveRating() {
+    fun saveRating(onSuccess: () -> Unit) {
         viewModelScope.launch {
+            _isSaving.value = true
+
+            _garment.value?.let { currentGarment ->
+                // Actualizar el garment con el nuevo rating y updatedAt
+                val updatedGarment = currentGarment.copy(
+                    rating = _selectedRating.value,
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                // Guardar en la base de datos
+                garmentRepository.updateGarment(updatedGarment)
+
+                // Actualizar el estado local
+                _garment.value = updatedGarment
+
+                _isSaving.value = false
+                onSuccess()
+            }
         }
     }
 }

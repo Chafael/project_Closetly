@@ -78,11 +78,13 @@ fun WardrobeScreen(
                     selectedTab = tab
                     when (tab) {
                         1 -> onNavigateToOutfits()
+                        2 -> onNavigateToUpload()
                         3 -> onNavigateToProfile()
                     }
                 }
             )
         }
+
     ) { paddingValues ->
         Column(
             modifier = Modifier.fillMaxSize().padding(paddingValues)

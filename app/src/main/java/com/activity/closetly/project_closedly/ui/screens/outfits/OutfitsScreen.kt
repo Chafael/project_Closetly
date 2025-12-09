@@ -16,15 +16,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
 import com.activity.closetly.project_closedly.data.local.entity.OutfitEntity
 import com.activity.closetly.project_closedly.ui.components.CustomDialog
 import com.activity.closetly.project_closedly.ui.components.DialogType
@@ -41,7 +38,9 @@ private val StarYellow = Color(0xFFFFC107)
 fun OutfitsScreen(
     outfitsViewModel: OutfitsViewModel = hiltViewModel(),
     onNavigateToCreate: () -> Unit = {},
-    onNavigateToDetail: (String) -> Unit = {}
+    onNavigateToDetail: (String) -> Unit = {},
+    onNavigateToWardrobe: () -> Unit = {},
+    onNavigateToProfile: () -> Unit = {}
 ) {
     val outfits by outfitsViewModel.outfits.collectAsState()
     val outfitCount by outfitsViewModel.outfitCount.collectAsState()
@@ -51,32 +50,55 @@ fun OutfitsScreen(
     var showSuccessDialog by remember { mutableStateOf(false) }
     var outfitToDelete by remember { mutableStateOf<OutfitEntity?>(null) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BackgroundGray)
-    ) {
-        OutfitsTopBar(
-            outfitCount = outfitCount,
-            onSearchClick = { }
-        )
-
-        OccasionTabs(
-            selectedOccasion = selectedOccasion,
-            onOccasionSelected = { outfitsViewModel.selectOccasion(it) }
-        )
-
-        if (outfits.isEmpty()) {
-            EmptyOutfitsState(onCreateOutfit = onNavigateToCreate)
-        } else {
-            OutfitsGrid(
-                outfits = outfits,
-                onOutfitClick = { onNavigateToDetail(it.id) },
-                onDeleteClick = { outfitToDelete = it; showDeleteDialog = true },
-                onRatingChange = { outfitId, rating ->
-                    outfitsViewModel.updateRating(outfitId, rating)
+    Scaffold(
+        containerColor = BackgroundGray,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onNavigateToCreate,
+                containerColor = LightBrown,
+                shape = CircleShape
+            ) {
+                Icon(Icons.Default.Add, "Crear outfit", tint = Color.White)
+            }
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                selectedTab = 1,
+                onTabSelected = { tab ->
+                    when (tab) {
+                        0 -> onNavigateToWardrobe()
+                        2 -> onNavigateToCreate()
+                        3 -> onNavigateToProfile()
+                    }
                 }
             )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(BackgroundGray)
+        ) {
+            OutfitsTopBar(
+                outfitCount = outfitCount,
+                onSearchClick = { }
+            )
+
+            OccasionTabs(
+                selectedOccasion = selectedOccasion,
+                onOccasionSelected = { outfitsViewModel.selectOccasion(it) }
+            )
+
+            if (outfits.isEmpty()) {
+                EmptyOutfitsState(onCreateOutfit = onNavigateToCreate)
+            } else {
+                OutfitsGrid(
+                    outfits = outfits,
+                    onOutfitClick = { onNavigateToDetail(it.id) },
+                    onDeleteClick = { outfitToDelete = it; showDeleteDialog = true }
+                )
+            }
         }
     }
 
@@ -105,6 +127,32 @@ fun OutfitsScreen(
             dismissButtonText = "Cerrar",
             onDismiss = { showSuccessDialog = false }
         )
+    }
+}
+
+@Composable
+private fun BottomNavigationBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
+    NavigationBar(containerColor = Color.White, tonalElevation = 8.dp) {
+        listOf(
+            Triple(0, Icons.Default.Home, "Armario"),
+            Triple(1, Icons.Default.Checkroom, "Outfits"),
+            Triple(2, Icons.Default.Add, "Crear"),
+            Triple(3, Icons.Default.Person, "Perfil")
+        ).forEach { (index, icon, label) ->
+            NavigationBarItem(
+                selected = selectedTab == index,
+                onClick = { onTabSelected(index) },
+                icon = { Icon(icon, label) },
+                label = { Text(label, fontSize = 12.sp) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = LightBrown,
+                    selectedTextColor = LightBrown,
+                    unselectedIconColor = SecondaryGray,
+                    unselectedTextColor = SecondaryGray,
+                    indicatorColor = Color.Transparent
+                )
+            )
+        }
     }
 }
 
@@ -195,8 +243,7 @@ private fun OccasionChip(
 private fun OutfitsGrid(
     outfits: List<OutfitEntity>,
     onOutfitClick: (OutfitEntity) -> Unit,
-    onDeleteClick: (OutfitEntity) -> Unit,
-    onRatingChange: (String, Int) -> Unit
+    onDeleteClick: (OutfitEntity) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -209,8 +256,7 @@ private fun OutfitsGrid(
             OutfitCard(
                 outfit = outfit,
                 onClick = { onOutfitClick(outfit) },
-                onDeleteClick = { onDeleteClick(outfit) },
-                onRatingChange = { rating -> onRatingChange(outfit.id, rating) }
+                onDeleteClick = { onDeleteClick(outfit) }
             )
         }
     }
@@ -220,8 +266,7 @@ private fun OutfitsGrid(
 private fun OutfitCard(
     outfit: OutfitEntity,
     onClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    onRatingChange: (Int) -> Unit
+    onDeleteClick: () -> Unit
 ) {
     val garmentIds = try {
         val jsonArray = JSONArray(outfit.garmentIds)
@@ -243,8 +288,9 @@ private fun OutfitCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(180.dp)
-                    .background(Color(0xFFF0F0F0))
             ) {
+                OutfitImageCollage(garmentIds = garmentIds)
+
                 Text(
                     text = "${garmentIds.size} prendas",
                     fontSize = 12.sp,
@@ -307,8 +353,140 @@ private fun OutfitCard(
 
                 RatingBar(
                     rating = outfit.rating,
-                    onRatingChange = onRatingChange
+                    isEditable = false
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun OutfitImageCollage(garmentIds: List<String>) {
+    val displayCount = minOf(garmentIds.size, 3)
+
+    when (displayCount) {
+        0 -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFF0F0F0))
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Checkroom,
+                    contentDescription = null,
+                    tint = SecondaryGray.copy(alpha = 0.3f),
+                    modifier = Modifier
+                        .size(80.dp)
+                        .align(Alignment.Center)
+                )
+            }
+        }
+        1 -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFF0F0F0))
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Checkroom,
+                    contentDescription = null,
+                    tint = SecondaryGray.copy(alpha = 0.3f),
+                    modifier = Modifier
+                        .size(80.dp)
+                        .align(Alignment.Center)
+                )
+            }
+        }
+        2 -> {
+            Row(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .background(Color(0xFFF0F0F0))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Checkroom,
+                        contentDescription = null,
+                        tint = SecondaryGray.copy(alpha = 0.3f),
+                        modifier = Modifier
+                            .size(60.dp)
+                            .align(Alignment.Center)
+                    )
+                }
+                Spacer(modifier = Modifier.width(1.dp))
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .background(Color(0xFFE0E0E0))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Checkroom,
+                        contentDescription = null,
+                        tint = SecondaryGray.copy(alpha = 0.3f),
+                        modifier = Modifier
+                            .size(60.dp)
+                            .align(Alignment.Center)
+                    )
+                }
+            }
+        }
+        else -> {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .background(Color(0xFFF0F0F0))
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Checkroom,
+                            contentDescription = null,
+                            tint = SecondaryGray.copy(alpha = 0.3f),
+                            modifier = Modifier
+                                .size(50.dp)
+                                .align(Alignment.Center)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(1.dp))
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .background(Color(0xFFE0E0E0))
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Checkroom,
+                            contentDescription = null,
+                            tint = SecondaryGray.copy(alpha = 0.3f),
+                            modifier = Modifier
+                                .size(50.dp)
+                                .align(Alignment.Center)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(1.dp))
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .background(Color(0xFFD0D0D0))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Checkroom,
+                        contentDescription = null,
+                        tint = SecondaryGray.copy(alpha = 0.3f),
+                        modifier = Modifier
+                            .size(50.dp)
+                            .align(Alignment.Center)
+                    )
+                }
             }
         }
     }
@@ -317,7 +495,7 @@ private fun OutfitCard(
 @Composable
 private fun RatingBar(
     rating: Int,
-    onRatingChange: (Int) -> Unit
+    isEditable: Boolean = true
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -327,9 +505,7 @@ private fun RatingBar(
                 imageVector = if (index < rating) Icons.Default.Star else Icons.Default.StarOutline,
                 contentDescription = "Estrella ${index + 1}",
                 tint = if (index < rating) StarYellow else SecondaryGray.copy(alpha = 0.3f),
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable { onRatingChange(index + 1) }
+                modifier = Modifier.size(20.dp)
             )
         }
     }

@@ -1,71 +1,81 @@
 package com.activity.closetly.project_closedly.ui.screens.outfits
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.activity.closetly.project_closedly.data.local.entity.OutfitEntity
-import com.activity.closetly.project_closedly.ui.components.CustomDialog
-import com.activity.closetly.project_closedly.ui.components.DialogType
-import com.activity.closetly.project_closedly.ui.viewmodel.OutfitsViewModel
-import org.json.JSONArray
+import com.activity.closetly.project_closedly.data.local.entity.GarmentEntity
+import com.activity.closetly.project_closedly.model.CreateOutfitState
+import com.activity.closetly.project_closedly.ui.viewmodel.CreateOutfitViewModel
 
 private val PrimaryBrown = Color(0xFF705840)
 private val LightBrown = Color(0xFFA28460)
 private val SecondaryGray = Color(0xFF6B7280)
 private val BackgroundGray = Color(0xFFFAFAFA)
-private val StarYellow = Color(0xFFFFC107)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OutfitsScreen(
-    outfitsViewModel: OutfitsViewModel = hiltViewModel(),
-    onNavigateToCreate: () -> Unit = {},
-    onNavigateToDetail: (String) -> Unit = {}
+fun CreateOutfitScreen(
+    createViewModel: CreateOutfitViewModel = hiltViewModel(),
+    onNavigateBack: () -> Unit = {},
+    onCreateSuccess: () -> Unit = {},
+    onNavigateToWardrobe: () -> Unit = {},
+    onNavigateToOutfits: () -> Unit = {},
+    onNavigateToProfile: () -> Unit = {}
 ) {
-    val outfits by outfitsViewModel.outfits.collectAsState()
-    val outfitCount by outfitsViewModel.outfitCount.collectAsState()
-    val selectedOccasion by outfitsViewModel.selectedOccasion.collectAsState()
+    val uiState = createViewModel.uiState
+    val availableGarments by createViewModel.availableGarments.collectAsState()
+    val scrollState = rememberScrollState()
 
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    var showSuccessDialog by remember { mutableStateOf(false) }
-    var outfitToDelete by remember { mutableStateOf<OutfitEntity?>(null) }
+    LaunchedEffect(uiState.isCreateSuccess) {
+        if (uiState.isCreateSuccess) {
+            onCreateSuccess()
+            createViewModel.resetCreateSuccess()
+        }
+    }
 
     Scaffold(
         containerColor = BackgroundGray,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToCreate,
-                containerColor = LightBrown,
-                shape = CircleShape
-            ) {
-                Icon(Icons.Default.Add, "Crear outfit", tint = Color.White)
-            }
+        topBar = {
+            TopAppBar(
+                title = { Text("Crear Outfit", fontWeight = FontWeight.Bold, color = PrimaryBrown) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.Default.ArrowBack, "Volver", tint = PrimaryBrown)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+            )
         },
         bottomBar = {
             BottomNavigationBar(
-                selectedTab = 1,
-                onTabSelected = { }
+                selectedTab = 2,
+                onTabSelected = { tab ->
+                    when (tab) {
+                        0 -> onNavigateToWardrobe()
+                        1 -> onNavigateToOutfits()
+                        3 -> onNavigateToProfile()
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -73,58 +83,77 @@ fun OutfitsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .verticalScroll(scrollState)
                 .background(BackgroundGray)
         ) {
-            OutfitsTopBar(
-                outfitCount = outfitCount,
-                onSearchClick = { }
+            FormSection(
+                uiState = uiState,
+                onNameChange = createViewModel::onNameChange,
+                onDescriptionChange = createViewModel::onDescriptionChange,
+                onOccasionChange = createViewModel::onOccasionChange,
+                onSeasonChange = createViewModel::onSeasonChange
             )
 
-            OccasionTabs(
-                selectedOccasion = selectedOccasion,
-                onOccasionSelected = { outfitsViewModel.selectOccasion(it) }
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                "Selecciona prendas",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = PrimaryBrown,
+                modifier = Modifier.padding(horizontal = 24.dp)
             )
 
-            if (outfits.isEmpty()) {
-                EmptyOutfitsState(onCreateOutfit = onNavigateToCreate)
-            } else {
-                OutfitsGrid(
-                    outfits = outfits,
-                    onOutfitClick = { onNavigateToDetail(it.id) },
-                    onDeleteClick = { outfitToDelete = it; showDeleteDialog = true },
-                    onRatingChange = { outfitId, rating ->
-                        outfitsViewModel.updateRating(outfitId, rating)
-                    }
+            Text(
+                "Mínimo 2 prendas",
+                fontSize = 14.sp,
+                color = SecondaryGray,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            GarmentSelection(
+                garments = availableGarments,
+                selectedIds = uiState.selectedGarmentIds,
+                onToggle = createViewModel::toggleGarmentSelection
+            )
+
+            uiState.errorMessage?.let { error ->
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(horizontal = 24.dp)
                 )
             }
-        }
-    }
 
-    if (showDeleteDialog && outfitToDelete != null) {
-        CustomDialog(
-            type = DialogType.WARNING,
-            title = "Eliminar Outfit",
-            message = "¿Estás seguro de que quieres eliminar \"${outfitToDelete!!.name}\"?",
-            dismissButtonText = "Cancelar",
-            confirmButtonText = "Eliminar",
-            onDismiss = { showDeleteDialog = false; outfitToDelete = null },
-            onConfirm = {
-                outfitsViewModel.deleteOutfit(outfitToDelete!!)
-                showDeleteDialog = false
-                outfitToDelete = null
-                showSuccessDialog = true
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = createViewModel::onCreateClicked,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(horizontal = 24.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = LightBrown),
+                enabled = !uiState.isLoading
+            ) {
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Crear Outfit", fontSize = 16.sp, color = Color.White)
+                }
             }
-        )
-    }
 
-    if (showSuccessDialog) {
-        CustomDialog(
-            type = DialogType.SUCCESS,
-            title = "Outfit Eliminado",
-            message = "El outfit se eliminó correctamente",
-            dismissButtonText = "Cerrar",
-            onDismiss = { showSuccessDialog = false }
-        )
+            Spacer(modifier = Modifier.height(32.dp))
+        }
     }
 }
 
@@ -155,278 +184,193 @@ private fun BottomNavigationBar(selectedTab: Int, onTabSelected: (Int) -> Unit) 
 }
 
 @Composable
-private fun OutfitsTopBar(
-    outfitCount: Int,
-    onSearchClick: () -> Unit
+private fun FormSection(
+    uiState: CreateOutfitState,
+    onNameChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit,
+    onOccasionChange: (String) -> Unit,
+    onSeasonChange: (String) -> Unit
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(24.dp)
     ) {
-        Column {
-            Text(
-                "Mi Outfit",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = PrimaryBrown
-            )
-            Text(
-                "$outfitCount outfits",
-                fontSize = 14.sp,
-                color = SecondaryGray
-            )
-        }
-        IconButton(onClick = onSearchClick) {
-            Icon(Icons.Default.Search, "Buscar", tint = SecondaryGray)
-        }
+        CustomTextField(
+            label = "Nombre del Outfit",
+            value = uiState.name,
+            onValueChange = onNameChange,
+            placeholder = "Ej: Outfit casual de verano"
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CustomTextField(
+            label = "Descripción (Opcional)",
+            value = uiState.description,
+            onValueChange = onDescriptionChange,
+            placeholder = "Describe tu outfit..."
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        DropdownField(
+            label = "Ocasión",
+            value = uiState.occasion,
+            options = listOf("Casual", "Formal", "Trabajo", "Fiesta", "Deportivo"),
+            onValueChange = onOccasionChange
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        DropdownField(
+            label = "Temporada",
+            value = uiState.season,
+            options = listOf("Todo el año", "Verano", "Invierno", "Primavera", "Otoño"),
+            onValueChange = onSeasonChange
+        )
     }
 }
 
 @Composable
-private fun OccasionTabs(
-    selectedOccasion: String,
-    onOccasionSelected: (String) -> Unit
+private fun CustomTextField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String
 ) {
-    val occasions = listOf("Todos", "Casual", "Formal", "Trabajo", "Fiesta", "Deportivo")
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        occasions.forEach { occasion ->
-            OccasionChip(
-                occasion = occasion,
-                isSelected = occasion == selectedOccasion,
-                onClick = { onOccasionSelected(occasion) }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(label, fontSize = 16.sp, fontWeight = FontWeight.Normal, color = PrimaryBrown)
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text(placeholder, color = Color.LightGray) },
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedBorderColor = Color(0xFFD1D5DB),
+                focusedBorderColor = LightBrown,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
             )
-        }
+        )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OccasionChip(
-    occasion: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
+private fun DropdownField(
+    label: String,
+    value: String,
+    options: List<String>,
+    onValueChange: (String) -> Unit
 ) {
-    Surface(
-        modifier = Modifier
-            .height(36.dp)
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(18.dp),
-        color = if (isSelected) LightBrown else Color.Transparent
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(horizontal = 20.dp)
-        ) {
-            Text(
-                occasion,
-                color = if (isSelected) Color.White else SecondaryGray,
-                fontSize = 14.sp
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(label, fontSize = 16.sp, fontWeight = FontWeight.Normal, color = PrimaryBrown)
+        Spacer(modifier = Modifier.height(8.dp))
+        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+            OutlinedTextField(
+                value = value,
+                onValueChange = {},
+                readOnly = true,
+                modifier = Modifier.fillMaxWidth().menuAnchor(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color(0xFFD1D5DB),
+                    focusedBorderColor = LightBrown,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                ),
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
             )
+            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = { onValueChange(option); expanded = false }
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun OutfitsGrid(
-    outfits: List<OutfitEntity>,
-    onOutfitClick: (OutfitEntity) -> Unit,
-    onDeleteClick: (OutfitEntity) -> Unit,
-    onRatingChange: (String, Int) -> Unit
+private fun GarmentSelection(
+    garments: List<GarmentEntity>,
+    selectedIds: List<String>,
+    onToggle: (String) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(24.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.background(BackgroundGray)
+        modifier = Modifier.height(400.dp)
     ) {
-        items(outfits) { outfit ->
-            OutfitCard(
-                outfit = outfit,
-                onClick = { onOutfitClick(outfit) },
-                onDeleteClick = { onDeleteClick(outfit) },
-                onRatingChange = { rating -> onRatingChange(outfit.id, rating) }
+        items(garments) { garment ->
+            SelectableGarmentItem(
+                garment = garment,
+                isSelected = selectedIds.contains(garment.id),
+                onToggle = { onToggle(garment.id) }
             )
         }
     }
 }
 
 @Composable
-private fun OutfitCard(
-    outfit: OutfitEntity,
-    onClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    onRatingChange: (Int) -> Unit
+private fun SelectableGarmentItem(
+    garment: GarmentEntity,
+    isSelected: Boolean,
+    onToggle: () -> Unit
 ) {
-    val garmentIds = try {
-        val jsonArray = JSONArray(outfit.garmentIds)
-        List(jsonArray.length()) { jsonArray.getString(it) }
-    } catch (e: Exception) {
-        emptyList()
-    }
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .aspectRatio(0.75f)
+            .clickable(onClick = onToggle)
+            .then(
+                if (isSelected) Modifier.border(3.dp, LightBrown, RoundedCornerShape(16.dp))
+                else Modifier
+            ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-                    .background(Color(0xFFF0F0F0))
-            ) {
-                Text(
-                    text = "${garmentIds.size} prendas",
-                    fontSize = 12.sp,
-                    color = Color.White,
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column {
+                Box(
                     modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(8.dp)
-                        .background(PrimaryBrown.copy(alpha = 0.7f), RoundedCornerShape(8.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                )
-
-                IconButton(
-                    onClick = onDeleteClick,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                        .size(32.dp)
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .background(Color(0xFFF0F0F0))
                 ) {
-                    Surface(
-                        shape = CircleShape,
-                        color = Color.White.copy(0.9f),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                Icons.Default.Delete,
-                                "Eliminar",
-                                tint = Color(0xFFDC2626),
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
+                    AsyncImage(
+                        model = garment.imageUrl,
+                        contentDescription = garment.name,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(garment.name, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = PrimaryBrown, maxLines = 1)
+                    Text(garment.category, fontSize = 12.sp, color = SecondaryGray, maxLines = 1)
+                }
+            }
+            if (isSelected) {
+                Surface(
+                    modifier = Modifier.align(Alignment.TopEnd).padding(8.dp).size(24.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = LightBrown
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.Check, "Seleccionado", tint = Color.White, modifier = Modifier.size(16.dp))
                     }
                 }
             }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp)
-            ) {
-                Text(
-                    outfit.name,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = PrimaryBrown,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    outfit.occasion ?: "Sin ocasión",
-                    fontSize = 13.sp,
-                    color = SecondaryGray,
-                    maxLines = 1
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                RatingBar(
-                    rating = outfit.rating,
-                    onRatingChange = onRatingChange
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun RatingBar(
-    rating: Int,
-    onRatingChange: (Int) -> Unit
-) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        repeat(5) { index ->
-            Icon(
-                imageVector = if (index < rating) Icons.Default.Star else Icons.Default.StarOutline,
-                contentDescription = "Estrella ${index + 1}",
-                tint = if (index < rating) StarYellow else SecondaryGray.copy(alpha = 0.3f),
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable { onRatingChange(index + 1) }
-            )
-        }
-    }
-}
-
-@Composable
-private fun EmptyOutfitsState(
-    onCreateOutfit: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BackgroundGray)
-            .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.Checkroom,
-            contentDescription = null,
-            tint = SecondaryGray.copy(alpha = 0.5f),
-            modifier = Modifier.size(100.dp)
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            "No tienes outfits",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = SecondaryGray
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            "Crea tu primer outfit combinando prendas",
-            fontSize = 14.sp,
-            color = SecondaryGray
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = onCreateOutfit,
-            colors = ButtonDefaults.buttonColors(LightBrown),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Icon(Icons.Default.Add, null, modifier = Modifier.size(20.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Crear outfit")
         }
     }
 }

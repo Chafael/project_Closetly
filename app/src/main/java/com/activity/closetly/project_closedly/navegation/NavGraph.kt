@@ -166,6 +166,14 @@ fun NavGraph(
                 },
                 onNavigateToDetail = { outfitId ->
                     navController.navigate("outfit_detail/$outfitId")
+                },
+                onNavigateToWardrobe = {
+                    navController.navigate(Routes.WARDROBE) {
+                        popUpTo(Routes.WARDROBE) { inclusive = true }
+                    }
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Routes.PROFILE)
                 }
             )
         }
@@ -179,6 +187,19 @@ fun NavGraph(
                     navController.navigate(Routes.OUTFITS) {
                         popUpTo(Routes.CREATE_OUTFIT) { inclusive = true }
                     }
+                },
+                onNavigateToWardrobe = {
+                    navController.navigate(Routes.WARDROBE) {
+                        popUpTo(Routes.WARDROBE) { inclusive = true }
+                    }
+                },
+                onNavigateToOutfits = {
+                    navController.navigate(Routes.OUTFITS) {
+                        popUpTo(Routes.OUTFITS) { inclusive = true }
+                    }
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Routes.PROFILE)
                 }
             )
         }
@@ -200,6 +221,14 @@ fun NavGraph(
                     navController.navigate(Routes.OUTFITS) {
                         popUpTo(Routes.OUTFITS) { inclusive = true }
                     }
+                },
+                onNavigateToWardrobe = {
+                    navController.navigate(Routes.WARDROBE) {
+                        popUpTo(Routes.WARDROBE) { inclusive = true }
+                    }
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Routes.PROFILE)
                 }
             )
         }
@@ -213,6 +242,14 @@ fun NavGraph(
                 garmentId = garmentId,
                 onNavigateBack = {
                     navController.popBackStack()
+                },
+                onNavigateToWardrobe = {
+                    navController.navigate(Routes.WARDROBE) {
+                        popUpTo(Routes.WARDROBE) { inclusive = true }
+                    }
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Routes.PROFILE)
                 }
             )
         }

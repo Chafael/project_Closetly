@@ -12,11 +12,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -39,7 +37,9 @@ fun OutfitDetailScreen(
     viewModel: OutfitDetailViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit = {},
     onNavigateToRateGarment: (String) -> Unit = {},
-    onOutfitDeleted: () -> Unit = {}
+    onOutfitDeleted: () -> Unit = {},
+    onNavigateToWardrobe: () -> Unit = {},
+    onNavigateToProfile: () -> Unit = {}
 ) {
     val outfit by viewModel.outfit.collectAsState()
     val garments by viewModel.garments.collectAsState()
@@ -70,6 +70,17 @@ fun OutfitDetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+            )
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                selectedTab = 1,
+                onTabSelected = { tab ->
+                    when (tab) {
+                        0 -> onNavigateToWardrobe()
+                        3 -> onNavigateToProfile()
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -113,7 +124,7 @@ fun OutfitDetailScreen(
                     icon = Icons.Default.Edit,
                     iconColor = LightBrown,
                     title = "Puntuar Prenda",
-                    subtitle = "Modificar prendas y configuración",
+                    subtitle = "Califica las prendas de este outfit",
                     onClick = {
                         if (garments.isNotEmpty()) {
                             onNavigateToRateGarment(garments.first().id)
@@ -147,22 +158,6 @@ fun OutfitDetailScreen(
                     rating = currentOutfit.rating,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = { /* TODO: Editar */ },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .padding(horizontal = 24.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = LightBrown)
-                ) {
-                    Icon(Icons.Default.Edit, null, modifier = Modifier.size(20.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Editar ahora", fontSize = 16.sp, color = Color.White)
-                }
 
                 Spacer(modifier = Modifier.height(32.dp))
             }
@@ -200,6 +195,32 @@ fun OutfitDetailScreen(
 }
 
 @Composable
+private fun BottomNavigationBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
+    NavigationBar(containerColor = Color.White, tonalElevation = 8.dp) {
+        listOf(
+            Triple(0, Icons.Default.Home, "Armario"),
+            Triple(1, Icons.Default.Checkroom, "Outfits"),
+            Triple(2, Icons.Default.Add, "Crear"),
+            Triple(3, Icons.Default.Person, "Perfil")
+        ).forEach { (index, icon, label) ->
+            NavigationBarItem(
+                selected = selectedTab == index,
+                onClick = { onTabSelected(index) },
+                icon = { Icon(icon, label) },
+                label = { Text(label, fontSize = 12.sp) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = LightBrown,
+                    selectedTextColor = LightBrown,
+                    unselectedIconColor = SecondaryGray,
+                    unselectedTextColor = SecondaryGray,
+                    indicatorColor = Color.Transparent
+                )
+            )
+        }
+    }
+}
+
+@Composable
 private fun GarmentsPreviewSection(
     garments: List<GarmentEntity>,
     modifier: Modifier = Modifier
@@ -215,34 +236,42 @@ private fun GarmentsPreviewSection(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            garments.forEach { garment ->
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    color = LightBrown
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        AsyncImage(
-                            model = garment.imageUrl,
-                            contentDescription = garment.name,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                        Text(
-                            text = garment.name,
-                            color = Color.White,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .background(PrimaryBrown.copy(alpha = 0.8f), RoundedCornerShape(8.dp))
-                                .padding(horizontal = 12.dp, vertical = 6.dp)
-                        )
+            if (garments.isEmpty()) {
+                Text(
+                    text = "No hay prendas disponibles",
+                    fontSize = 14.sp,
+                    color = SecondaryGray
+                )
+            } else {
+                garments.forEach { garment ->
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        color = LightBrown
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            AsyncImage(
+                                model = garment.imageUrl,
+                                contentDescription = garment.name,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                            Text(
+                                text = garment.name,
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .background(PrimaryBrown.copy(alpha = 0.8f), RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                            )
+                        }
                     }
-                }
-                if (garment != garments.last()) {
-                    Spacer(modifier = Modifier.height(12.dp))
+                    if (garment != garments.last()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
             }
         }
