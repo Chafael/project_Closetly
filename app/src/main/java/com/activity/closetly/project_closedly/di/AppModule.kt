@@ -2,10 +2,11 @@ package com.activity.closetly.project_closedly.di
 
 import android.content.Context
 import androidx.room.Room
+import com.activity.closetly.project_closedly.data.local.AppDatabase
+import com.activity.closetly.project_closedly.data.local.MIGRATION_3_4
 import com.activity.closetly.project_closedly.data.local.dao.GarmentDao
 import com.activity.closetly.project_closedly.data.local.dao.OutfitDao
 import com.activity.closetly.project_closedly.data.local.dao.UserDao
-import com.activity.closetly.project_closedly.data.local.database.AppDatabase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -18,6 +19,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
     @Provides
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
@@ -34,7 +36,8 @@ object AppModule {
             AppDatabase::class.java,
             "closetly_database"
         )
-            .fallbackToDestructiveMigration()
+            .addMigrations(MIGRATION_3_4)
+            .fallbackToDestructiveMigration() // Borra y recrea DB si hay errores
             .build()
     }
 

@@ -69,7 +69,7 @@ class AuthRepository @Inject constructor(
 
     suspend fun logout() {
         firebaseAuthService.signOut()
-        userDao.deleteAllUsers() // Limpia datos locales al cerrar sesión
+        userDao.deleteAllUsers()
     }
 
     fun getLocalUser(userId: String): Flow<UserEntity?> {
